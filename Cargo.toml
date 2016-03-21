@@ -1,0 +1,11 @@
+[package]
+name = "ptp"
+version = "0.1.0"
+authors = ["Tim Ryan <tim@3drobotics.com>"]
+
+[dependencies]
+libusb = "0.2.2"
+byteorder = "0.4.2"
+num = "0.1.30"
+enum_primitive = "0.1.0"
+encoding = "0.2.32"

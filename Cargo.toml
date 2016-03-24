@@ -1,7 +1,9 @@
 [package]
 name = "ptp"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Tim Ryan <tim@3drobotics.com>"]
+homepage = "https://github.com/dronekit/rust-ptp"
+repository = "https://github.com/dronekit/rust-ptp"
 
 [dependencies]
 libusb = "0.2.2"

@@ -720,16 +720,30 @@ impl<'a> PtpCamera<'a> {
 
         self.current_tid += 1;
 
-        //TODO scale with vector size
         let mut data = None;
-        let mut packet = vec![];
-
         loop {
+            unsafe {
+                self.buf.set_len(0);
+            }
+
             loop {
-                match self.handle.read_bulk(self.ep_in.address, &mut self.buf, timeout) {
+                let chunk_size = 256*1024;
+                let current_len = self.buf.len();
+                let current_capacity = self.buf.capacity();
+                if current_capacity - current_len < chunk_size {
+                    self.buf.reserve(chunk_size);
+                }
+                let remaining_buf = unsafe {
+                    ::std::slice::from_raw_parts_mut(self.buf.get_unchecked_mut(current_len) as *mut _, chunk_size)
+                };
+                // println!("reading into buf [{:?}] {:?}", current_len, remaining_buf.len());
+                match self.handle.read_bulk(self.ep_in.address, remaining_buf, timeout) {
                     Ok(len) => {
-                        packet.extend(&self.buf[0..len]);
-                        if len == self.buf.len() {
+                        unsafe {
+                            self.buf.set_len(current_len + len);
+                        }
+                        // println!("new buf len [{:?}] into {:?}", self.buf.len(), remaining_buf.len());
+                        if len == remaining_buf.len() {
                             continue;
                         }
                         break;
@@ -746,8 +760,7 @@ impl<'a> PtpCamera<'a> {
                 }
             }
 
-            let (mtype, mut msg) = try!(PtpTransaction::parse(&packet));
-            packet = vec![];
+            let (mtype, mut msg) = try!(PtpTransaction::parse(&self.buf));
 
             if mtype == PtpContainerType::Data && msg.is_response(&transaction) {
                 data = Some(msg.data);

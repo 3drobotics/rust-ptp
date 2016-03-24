@@ -2,6 +2,8 @@
 name = "ptp"
 version = "0.1.1"
 authors = ["Tim Ryan <tim@3drobotics.com>"]
+description = "Picture Transfer Protocol driver in Rust."
+license = "MIT"
 homepage = "https://github.com/dronekit/rust-ptp"
 repository = "https://github.com/dronekit/rust-ptp"
 

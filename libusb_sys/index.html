@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `libusb_sys` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, libusb_sys">
+
+    <title>libusb_sys - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'libusb_sys', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>libusb_sys</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/libusb_sys/lib.rs.html#1-346' title='goto source code'>[src]</a></span></h1>
+<h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_config_descriptor.html'
+                               title='libusb_sys::libusb_config_descriptor'>libusb_config_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_context.html'
+                               title='libusb_sys::libusb_context'>libusb_context</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_device.html'
+                               title='libusb_sys::libusb_device'>libusb_device</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_device_descriptor.html'
+                               title='libusb_sys::libusb_device_descriptor'>libusb_device_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_device_handle.html'
+                               title='libusb_sys::libusb_device_handle'>libusb_device_handle</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_endpoint_descriptor.html'
+                               title='libusb_sys::libusb_endpoint_descriptor'>libusb_endpoint_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_interface.html'
+                               title='libusb_sys::libusb_interface'>libusb_interface</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_interface_descriptor.html'
+                               title='libusb_sys::libusb_interface_descriptor'>libusb_interface_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_iso_packet_descriptor.html'
+                               title='libusb_sys::libusb_iso_packet_descriptor'>libusb_iso_packet_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_transfer.html'
+                               title='libusb_sys::libusb_transfer'>libusb_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.libusb_version.html'
+                               title='libusb_sys::libusb_version'>libusb_version</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='constants' class='section-header'><a href="#constants">Constants</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CAP_HAS_CAPABILITY.html'
+                               title='libusb_sys::LIBUSB_CAP_HAS_CAPABILITY'>LIBUSB_CAP_HAS_CAPABILITY</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CAP_HAS_HID_ACCESS.html'
+                               title='libusb_sys::LIBUSB_CAP_HAS_HID_ACCESS'>LIBUSB_CAP_HAS_HID_ACCESS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CAP_HAS_HOTPLUG.html'
+                               title='libusb_sys::LIBUSB_CAP_HAS_HOTPLUG'>LIBUSB_CAP_HAS_HOTPLUG</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER.html'
+                               title='libusb_sys::LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER'>LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_APPLICATION.html'
+                               title='libusb_sys::LIBUSB_CLASS_APPLICATION'>LIBUSB_CLASS_APPLICATION</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_AUDIO.html'
+                               title='libusb_sys::LIBUSB_CLASS_AUDIO'>LIBUSB_CLASS_AUDIO</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_COMM.html'
+                               title='libusb_sys::LIBUSB_CLASS_COMM'>LIBUSB_CLASS_COMM</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_CONTENT_SECURITY.html'
+                               title='libusb_sys::LIBUSB_CLASS_CONTENT_SECURITY'>LIBUSB_CLASS_CONTENT_SECURITY</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_DATA.html'
+                               title='libusb_sys::LIBUSB_CLASS_DATA'>LIBUSB_CLASS_DATA</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_DIAGNOSTIC_DEVICE.html'
+                               title='libusb_sys::LIBUSB_CLASS_DIAGNOSTIC_DEVICE'>LIBUSB_CLASS_DIAGNOSTIC_DEVICE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_HID.html'
+                               title='libusb_sys::LIBUSB_CLASS_HID'>LIBUSB_CLASS_HID</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_HUB.html'
+                               title='libusb_sys::LIBUSB_CLASS_HUB'>LIBUSB_CLASS_HUB</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_IMAGE.html'
+                               title='libusb_sys::LIBUSB_CLASS_IMAGE'>LIBUSB_CLASS_IMAGE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_MASS_STORAGE.html'
+                               title='libusb_sys::LIBUSB_CLASS_MASS_STORAGE'>LIBUSB_CLASS_MASS_STORAGE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_PERSONAL_HEALTHCARE.html'
+                               title='libusb_sys::LIBUSB_CLASS_PERSONAL_HEALTHCARE'>LIBUSB_CLASS_PERSONAL_HEALTHCARE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_PER_INTERFACE.html'
+                               title='libusb_sys::LIBUSB_CLASS_PER_INTERFACE'>LIBUSB_CLASS_PER_INTERFACE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_PHYSICAL.html'
+                               title='libusb_sys::LIBUSB_CLASS_PHYSICAL'>LIBUSB_CLASS_PHYSICAL</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_PRINTER.html'
+                               title='libusb_sys::LIBUSB_CLASS_PRINTER'>LIBUSB_CLASS_PRINTER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_SMART_CARD.html'
+                               title='libusb_sys::LIBUSB_CLASS_SMART_CARD'>LIBUSB_CLASS_SMART_CARD</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_VENDOR_SPEC.html'
+                               title='libusb_sys::LIBUSB_CLASS_VENDOR_SPEC'>LIBUSB_CLASS_VENDOR_SPEC</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_VIDEO.html'
+                               title='libusb_sys::LIBUSB_CLASS_VIDEO'>LIBUSB_CLASS_VIDEO</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_CLASS_WIRELESS.html'
+                               title='libusb_sys::LIBUSB_CLASS_WIRELESS'>LIBUSB_CLASS_WIRELESS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_BOS.html'
+                               title='libusb_sys::LIBUSB_DT_BOS'>LIBUSB_DT_BOS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_CONFIG.html'
+                               title='libusb_sys::LIBUSB_DT_CONFIG'>LIBUSB_DT_CONFIG</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_DEVICE.html'
+                               title='libusb_sys::LIBUSB_DT_DEVICE'>LIBUSB_DT_DEVICE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_DEVICE_CAPABILITY.html'
+                               title='libusb_sys::LIBUSB_DT_DEVICE_CAPABILITY'>LIBUSB_DT_DEVICE_CAPABILITY</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_ENDPOINT.html'
+                               title='libusb_sys::LIBUSB_DT_ENDPOINT'>LIBUSB_DT_ENDPOINT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_HID.html'
+                               title='libusb_sys::LIBUSB_DT_HID'>LIBUSB_DT_HID</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_HUB.html'
+                               title='libusb_sys::LIBUSB_DT_HUB'>LIBUSB_DT_HUB</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_INTERFACE.html'
+                               title='libusb_sys::LIBUSB_DT_INTERFACE'>LIBUSB_DT_INTERFACE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_PHYSICAL.html'
+                               title='libusb_sys::LIBUSB_DT_PHYSICAL'>LIBUSB_DT_PHYSICAL</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_REPORT.html'
+                               title='libusb_sys::LIBUSB_DT_REPORT'>LIBUSB_DT_REPORT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_SS_ENDPOINT_COMPANION.html'
+                               title='libusb_sys::LIBUSB_DT_SS_ENDPOINT_COMPANION'>LIBUSB_DT_SS_ENDPOINT_COMPANION</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_STRING.html'
+                               title='libusb_sys::LIBUSB_DT_STRING'>LIBUSB_DT_STRING</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_DT_SUPERSPEED_HUB.html'
+                               title='libusb_sys::LIBUSB_DT_SUPERSPEED_HUB'>LIBUSB_DT_SUPERSPEED_HUB</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ENDPOINT_ADDRESS_MASK.html'
+                               title='libusb_sys::LIBUSB_ENDPOINT_ADDRESS_MASK'>LIBUSB_ENDPOINT_ADDRESS_MASK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ENDPOINT_DIR_MASK.html'
+                               title='libusb_sys::LIBUSB_ENDPOINT_DIR_MASK'>LIBUSB_ENDPOINT_DIR_MASK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ENDPOINT_IN.html'
+                               title='libusb_sys::LIBUSB_ENDPOINT_IN'>LIBUSB_ENDPOINT_IN</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ENDPOINT_OUT.html'
+                               title='libusb_sys::LIBUSB_ENDPOINT_OUT'>LIBUSB_ENDPOINT_OUT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_ACCESS.html'
+                               title='libusb_sys::LIBUSB_ERROR_ACCESS'>LIBUSB_ERROR_ACCESS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_BUSY.html'
+                               title='libusb_sys::LIBUSB_ERROR_BUSY'>LIBUSB_ERROR_BUSY</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_INTERRUPTED.html'
+                               title='libusb_sys::LIBUSB_ERROR_INTERRUPTED'>LIBUSB_ERROR_INTERRUPTED</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_INVALID_PARAM.html'
+                               title='libusb_sys::LIBUSB_ERROR_INVALID_PARAM'>LIBUSB_ERROR_INVALID_PARAM</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_IO.html'
+                               title='libusb_sys::LIBUSB_ERROR_IO'>LIBUSB_ERROR_IO</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_NOT_FOUND.html'
+                               title='libusb_sys::LIBUSB_ERROR_NOT_FOUND'>LIBUSB_ERROR_NOT_FOUND</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_NOT_SUPPORTED.html'
+                               title='libusb_sys::LIBUSB_ERROR_NOT_SUPPORTED'>LIBUSB_ERROR_NOT_SUPPORTED</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_NO_DEVICE.html'
+                               title='libusb_sys::LIBUSB_ERROR_NO_DEVICE'>LIBUSB_ERROR_NO_DEVICE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_NO_MEM.html'
+                               title='libusb_sys::LIBUSB_ERROR_NO_MEM'>LIBUSB_ERROR_NO_MEM</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_OTHER.html'
+                               title='libusb_sys::LIBUSB_ERROR_OTHER'>LIBUSB_ERROR_OTHER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_OVERFLOW.html'
+                               title='libusb_sys::LIBUSB_ERROR_OVERFLOW'>LIBUSB_ERROR_OVERFLOW</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_PIPE.html'
+                               title='libusb_sys::LIBUSB_ERROR_PIPE'>LIBUSB_ERROR_PIPE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ERROR_TIMEOUT.html'
+                               title='libusb_sys::LIBUSB_ERROR_TIMEOUT'>LIBUSB_ERROR_TIMEOUT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_SYNC_TYPE_ADAPTIVE.html'
+                               title='libusb_sys::LIBUSB_ISO_SYNC_TYPE_ADAPTIVE'>LIBUSB_ISO_SYNC_TYPE_ADAPTIVE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_SYNC_TYPE_ASYNC.html'
+                               title='libusb_sys::LIBUSB_ISO_SYNC_TYPE_ASYNC'>LIBUSB_ISO_SYNC_TYPE_ASYNC</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_SYNC_TYPE_MASK.html'
+                               title='libusb_sys::LIBUSB_ISO_SYNC_TYPE_MASK'>LIBUSB_ISO_SYNC_TYPE_MASK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_SYNC_TYPE_NONE.html'
+                               title='libusb_sys::LIBUSB_ISO_SYNC_TYPE_NONE'>LIBUSB_ISO_SYNC_TYPE_NONE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_SYNC_TYPE_SYNC.html'
+                               title='libusb_sys::LIBUSB_ISO_SYNC_TYPE_SYNC'>LIBUSB_ISO_SYNC_TYPE_SYNC</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_USAGE_TYPE_DATA.html'
+                               title='libusb_sys::LIBUSB_ISO_USAGE_TYPE_DATA'>LIBUSB_ISO_USAGE_TYPE_DATA</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_USAGE_TYPE_FEEDBACK.html'
+                               title='libusb_sys::LIBUSB_ISO_USAGE_TYPE_FEEDBACK'>LIBUSB_ISO_USAGE_TYPE_FEEDBACK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_USAGE_TYPE_IMPLICIT.html'
+                               title='libusb_sys::LIBUSB_ISO_USAGE_TYPE_IMPLICIT'>LIBUSB_ISO_USAGE_TYPE_IMPLICIT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_ISO_USAGE_TYPE_MASK.html'
+                               title='libusb_sys::LIBUSB_ISO_USAGE_TYPE_MASK'>LIBUSB_ISO_USAGE_TYPE_MASK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_LOG_LEVEL_DEBUG.html'
+                               title='libusb_sys::LIBUSB_LOG_LEVEL_DEBUG'>LIBUSB_LOG_LEVEL_DEBUG</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_LOG_LEVEL_ERROR.html'
+                               title='libusb_sys::LIBUSB_LOG_LEVEL_ERROR'>LIBUSB_LOG_LEVEL_ERROR</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_LOG_LEVEL_INFO.html'
+                               title='libusb_sys::LIBUSB_LOG_LEVEL_INFO'>LIBUSB_LOG_LEVEL_INFO</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_LOG_LEVEL_NONE.html'
+                               title='libusb_sys::LIBUSB_LOG_LEVEL_NONE'>LIBUSB_LOG_LEVEL_NONE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_LOG_LEVEL_WARNING.html'
+                               title='libusb_sys::LIBUSB_LOG_LEVEL_WARNING'>LIBUSB_LOG_LEVEL_WARNING</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_RECIPIENT_DEVICE.html'
+                               title='libusb_sys::LIBUSB_RECIPIENT_DEVICE'>LIBUSB_RECIPIENT_DEVICE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_RECIPIENT_ENDPOINT.html'
+                               title='libusb_sys::LIBUSB_RECIPIENT_ENDPOINT'>LIBUSB_RECIPIENT_ENDPOINT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_RECIPIENT_INTERFACE.html'
+                               title='libusb_sys::LIBUSB_RECIPIENT_INTERFACE'>LIBUSB_RECIPIENT_INTERFACE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_RECIPIENT_OTHER.html'
+                               title='libusb_sys::LIBUSB_RECIPIENT_OTHER'>LIBUSB_RECIPIENT_OTHER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_CLEAR_FEATURE.html'
+                               title='libusb_sys::LIBUSB_REQUEST_CLEAR_FEATURE'>LIBUSB_REQUEST_CLEAR_FEATURE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_GET_CONFIGURATION.html'
+                               title='libusb_sys::LIBUSB_REQUEST_GET_CONFIGURATION'>LIBUSB_REQUEST_GET_CONFIGURATION</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_GET_DESCRIPTOR.html'
+                               title='libusb_sys::LIBUSB_REQUEST_GET_DESCRIPTOR'>LIBUSB_REQUEST_GET_DESCRIPTOR</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_GET_INTERFACE.html'
+                               title='libusb_sys::LIBUSB_REQUEST_GET_INTERFACE'>LIBUSB_REQUEST_GET_INTERFACE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_GET_STATUS.html'
+                               title='libusb_sys::LIBUSB_REQUEST_GET_STATUS'>LIBUSB_REQUEST_GET_STATUS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SET_ADDRESS.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SET_ADDRESS'>LIBUSB_REQUEST_SET_ADDRESS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SET_CONFIGURATION.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SET_CONFIGURATION'>LIBUSB_REQUEST_SET_CONFIGURATION</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SET_DESCRIPTOR.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SET_DESCRIPTOR'>LIBUSB_REQUEST_SET_DESCRIPTOR</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SET_FEATURE.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SET_FEATURE'>LIBUSB_REQUEST_SET_FEATURE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SET_INTERFACE.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SET_INTERFACE'>LIBUSB_REQUEST_SET_INTERFACE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SET_SEL.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SET_SEL'>LIBUSB_REQUEST_SET_SEL</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_SYNCH_FRAME.html'
+                               title='libusb_sys::LIBUSB_REQUEST_SYNCH_FRAME'>LIBUSB_REQUEST_SYNCH_FRAME</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_TYPE_CLASS.html'
+                               title='libusb_sys::LIBUSB_REQUEST_TYPE_CLASS'>LIBUSB_REQUEST_TYPE_CLASS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_TYPE_RESERVED.html'
+                               title='libusb_sys::LIBUSB_REQUEST_TYPE_RESERVED'>LIBUSB_REQUEST_TYPE_RESERVED</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_TYPE_STANDARD.html'
+                               title='libusb_sys::LIBUSB_REQUEST_TYPE_STANDARD'>LIBUSB_REQUEST_TYPE_STANDARD</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_REQUEST_TYPE_VENDOR.html'
+                               title='libusb_sys::LIBUSB_REQUEST_TYPE_VENDOR'>LIBUSB_REQUEST_TYPE_VENDOR</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SET_ISOCH_DELAY.html'
+                               title='libusb_sys::LIBUSB_SET_ISOCH_DELAY'>LIBUSB_SET_ISOCH_DELAY</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SPEED_FULL.html'
+                               title='libusb_sys::LIBUSB_SPEED_FULL'>LIBUSB_SPEED_FULL</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SPEED_HIGH.html'
+                               title='libusb_sys::LIBUSB_SPEED_HIGH'>LIBUSB_SPEED_HIGH</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SPEED_LOW.html'
+                               title='libusb_sys::LIBUSB_SPEED_LOW'>LIBUSB_SPEED_LOW</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SPEED_SUPER.html'
+                               title='libusb_sys::LIBUSB_SPEED_SUPER'>LIBUSB_SPEED_SUPER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SPEED_UNKNOWN.html'
+                               title='libusb_sys::LIBUSB_SPEED_UNKNOWN'>LIBUSB_SPEED_UNKNOWN</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_SUCCESS.html'
+                               title='libusb_sys::LIBUSB_SUCCESS'>LIBUSB_SUCCESS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_ADD_ZERO_PACKET.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_ADD_ZERO_PACKET'>LIBUSB_TRANSFER_ADD_ZERO_PACKET</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_CANCELLED.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_CANCELLED'>LIBUSB_TRANSFER_CANCELLED</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_COMPLETED.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_COMPLETED'>LIBUSB_TRANSFER_COMPLETED</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_ERROR.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_ERROR'>LIBUSB_TRANSFER_ERROR</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_FREE_BUFFER.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_FREE_BUFFER'>LIBUSB_TRANSFER_FREE_BUFFER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_FREE_TRANSFER.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_FREE_TRANSFER'>LIBUSB_TRANSFER_FREE_TRANSFER</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_NO_DEVICE.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_NO_DEVICE'>LIBUSB_TRANSFER_NO_DEVICE</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_OVERFLOW.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_OVERFLOW'>LIBUSB_TRANSFER_OVERFLOW</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_SHORT_NOT_OK.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_SHORT_NOT_OK'>LIBUSB_TRANSFER_SHORT_NOT_OK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_STALL.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_STALL'>LIBUSB_TRANSFER_STALL</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TIMED_OUT.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TIMED_OUT'>LIBUSB_TRANSFER_TIMED_OUT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TYPE_BULK.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TYPE_BULK'>LIBUSB_TRANSFER_TYPE_BULK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TYPE_BULK_STREAM.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TYPE_BULK_STREAM'>LIBUSB_TRANSFER_TYPE_BULK_STREAM</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TYPE_CONTROL.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TYPE_CONTROL'>LIBUSB_TRANSFER_TYPE_CONTROL</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TYPE_INTERRUPT.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TYPE_INTERRUPT'>LIBUSB_TRANSFER_TYPE_INTERRUPT</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TYPE_ISOCHRONOUS'>LIBUSB_TRANSFER_TYPE_ISOCHRONOUS</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='constant' href='constant.LIBUSB_TRANSFER_TYPE_MASK.html'
+                               title='libusb_sys::LIBUSB_TRANSFER_TYPE_MASK'>LIBUSB_TRANSFER_TYPE_MASK</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_alloc_transfer.html'
+                               title='libusb_sys::libusb_alloc_transfer'>libusb_alloc_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_attach_kernel_driver.html'
+                               title='libusb_sys::libusb_attach_kernel_driver'>libusb_attach_kernel_driver</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_bulk_transfer.html'
+                               title='libusb_sys::libusb_bulk_transfer'>libusb_bulk_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_cancel_transfer.html'
+                               title='libusb_sys::libusb_cancel_transfer'>libusb_cancel_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_claim_interface.html'
+                               title='libusb_sys::libusb_claim_interface'>libusb_claim_interface</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_close.html'
+                               title='libusb_sys::libusb_close'>libusb_close</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_control_transfer.html'
+                               title='libusb_sys::libusb_control_transfer'>libusb_control_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_detach_kernel_driver.html'
+                               title='libusb_sys::libusb_detach_kernel_driver'>libusb_detach_kernel_driver</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_exit.html'
+                               title='libusb_sys::libusb_exit'>libusb_exit</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_free_config_descriptor.html'
+                               title='libusb_sys::libusb_free_config_descriptor'>libusb_free_config_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_free_device_list.html'
+                               title='libusb_sys::libusb_free_device_list'>libusb_free_device_list</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_free_transfer.html'
+                               title='libusb_sys::libusb_free_transfer'>libusb_free_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_bus_number.html'
+                               title='libusb_sys::libusb_get_bus_number'>libusb_get_bus_number</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_config_descriptor.html'
+                               title='libusb_sys::libusb_get_config_descriptor'>libusb_get_config_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_configuration.html'
+                               title='libusb_sys::libusb_get_configuration'>libusb_get_configuration</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_device.html'
+                               title='libusb_sys::libusb_get_device'>libusb_get_device</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_device_address.html'
+                               title='libusb_sys::libusb_get_device_address'>libusb_get_device_address</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_device_descriptor.html'
+                               title='libusb_sys::libusb_get_device_descriptor'>libusb_get_device_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_device_list.html'
+                               title='libusb_sys::libusb_get_device_list'>libusb_get_device_list</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_device_speed.html'
+                               title='libusb_sys::libusb_get_device_speed'>libusb_get_device_speed</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_max_iso_packet_size.html'
+                               title='libusb_sys::libusb_get_max_iso_packet_size'>libusb_get_max_iso_packet_size</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_max_packet_size.html'
+                               title='libusb_sys::libusb_get_max_packet_size'>libusb_get_max_packet_size</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_parent.html'
+                               title='libusb_sys::libusb_get_parent'>libusb_get_parent</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_string_descriptor.html'
+                               title='libusb_sys::libusb_get_string_descriptor'>libusb_get_string_descriptor</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_string_descriptor_ascii.html'
+                               title='libusb_sys::libusb_get_string_descriptor_ascii'>libusb_get_string_descriptor_ascii</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_get_version.html'
+                               title='libusb_sys::libusb_get_version'>libusb_get_version</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_handle_events.html'
+                               title='libusb_sys::libusb_handle_events'>libusb_handle_events</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_handle_events_completed.html'
+                               title='libusb_sys::libusb_handle_events_completed'>libusb_handle_events_completed</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_handle_events_timeout_completed.html'
+                               title='libusb_sys::libusb_handle_events_timeout_completed'>libusb_handle_events_timeout_completed</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_has_capability.html'
+                               title='libusb_sys::libusb_has_capability'>libusb_has_capability</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_init.html'
+                               title='libusb_sys::libusb_init'>libusb_init</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_interrupt_transfer.html'
+                               title='libusb_sys::libusb_interrupt_transfer'>libusb_interrupt_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_kernel_driver_active.html'
+                               title='libusb_sys::libusb_kernel_driver_active'>libusb_kernel_driver_active</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_open.html'
+                               title='libusb_sys::libusb_open'>libusb_open</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_open_device_with_vid_pid.html'
+                               title='libusb_sys::libusb_open_device_with_vid_pid'>libusb_open_device_with_vid_pid</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_ref_device.html'
+                               title='libusb_sys::libusb_ref_device'>libusb_ref_device</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_release_interface.html'
+                               title='libusb_sys::libusb_release_interface'>libusb_release_interface</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_reset_device.html'
+                               title='libusb_sys::libusb_reset_device'>libusb_reset_device</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_set_auto_detach_kernel_driver.html'
+                               title='libusb_sys::libusb_set_auto_detach_kernel_driver'>libusb_set_auto_detach_kernel_driver</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_set_configuration.html'
+                               title='libusb_sys::libusb_set_configuration'>libusb_set_configuration</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_set_debug.html'
+                               title='libusb_sys::libusb_set_debug'>libusb_set_debug</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_set_interface_alt_setting.html'
+                               title='libusb_sys::libusb_set_interface_alt_setting'>libusb_set_interface_alt_setting</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_submit_transfer.html'
+                               title='libusb_sys::libusb_submit_transfer'>libusb_submit_transfer</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.libusb_unref_device.html'
+                               title='libusb_sys::libusb_unref_device'>libusb_unref_device</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.libusb_transfer_cb_fn.html'
+                               title='libusb_sys::libusb_transfer_cb_fn'>libusb_transfer_cb_fn</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "libusb_sys";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

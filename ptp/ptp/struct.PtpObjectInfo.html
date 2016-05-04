@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `PtpObjectInfo` struct in crate `ptp`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, PtpObjectInfo">
+
+    <title>ptp::ptp::PtpObjectInfo - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>ptp</a>::<wbr><a href='index.html'>ptp</a></p><script>window.sidebarCurrent = {name: 'PtpObjectInfo', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>ptp</a>::<wbr><a href='index.html'>ptp</a>::<wbr><a class='struct' href=''>PtpObjectInfo</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-747' class='srclink' href='../../src/ptp/src/ptp.rs.html#479-499' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct PtpObjectInfo {
+    pub StorageID: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ObjectFormat: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
+    pub ProtectionStatus: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
+    pub ObjectCompressedSize: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ThumbFormat: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
+    pub ThumbCompressedSize: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ThumbPixWidth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ThumbPixHeight: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ImagePixWidth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ImagePixHeight: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ImageBitDepth: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub ParentObject: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub AssociationType: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
+    pub AssociationDesc: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub SequenceNumber: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub Filename: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    pub CaptureDate: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    pub ModificationDate: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    pub Keywords: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.StorageID'><code>StorageID</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ObjectFormat'><code>ObjectFormat</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ProtectionStatus'><code>ProtectionStatus</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ObjectCompressedSize'><code>ObjectCompressedSize</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ThumbFormat'><code>ThumbFormat</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ThumbCompressedSize'><code>ThumbCompressedSize</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ThumbPixWidth'><code>ThumbPixWidth</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ThumbPixHeight'><code>ThumbPixHeight</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ImagePixWidth'><code>ImagePixWidth</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ImagePixHeight'><code>ImagePixHeight</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ImageBitDepth'><code>ImageBitDepth</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ParentObject'><code>ParentObject</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.AssociationType'><code>AssociationType</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.AssociationDesc'><code>AssociationDesc</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.SequenceNumber'><code>SequenceNumber</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.Filename'><code>Filename</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.CaptureDate'><code>CaptureDate</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.ModificationDate'><code>ModificationDate</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.Keywords'><code>Keywords</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../ptp/ptp/struct.PtpObjectInfo.html' title='ptp::ptp::PtpObjectInfo'>PtpObjectInfo</a></code></h3><div class='impl-items'><h4 id='method.decode' class='method'><code>fn <a href='#method.decode' class='fnname'>decode</a>(buf: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='../../ptp/ptp/struct.PtpObjectInfo.html' title='ptp::ptp::PtpObjectInfo'>PtpObjectInfo</a>&gt;</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../ptp/ptp/struct.PtpObjectInfo.html' title='ptp::ptp::PtpObjectInfo'>PtpObjectInfo</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../ptp/ptp/struct.PtpObjectInfo.html' title='ptp::ptp::PtpObjectInfo'>PtpObjectInfo</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../ptp/ptp/struct.PtpObjectInfo.html' title='ptp::ptp::PtpObjectInfo'>PtpObjectInfo</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "ptp";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

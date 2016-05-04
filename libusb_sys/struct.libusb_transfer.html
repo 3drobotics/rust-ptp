@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `libusb_transfer` struct in crate `libusb_sys`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, libusb_transfer">
+
+    <title>libusb_sys::libusb_transfer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>libusb_sys</a></p><script>window.sidebarCurrent = {name: 'libusb_transfer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>libusb_sys</a>::<wbr><a class='struct' href=''>libusb_transfer</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-79' class='srclink' href='../src/libusb_sys/lib.rs.html#116-130' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct libusb_transfer {
+    pub dev_handle: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='struct' href='../libusb_sys/struct.libusb_device_handle.html' title='libusb_sys::libusb_device_handle'>libusb_device_handle</a>,
+    pub flags: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>,
+    pub endpoint: <a class='type' href='../libc/type.c_uchar.html' title='libc::c_uchar'>c_uchar</a>,
+    pub transfer_type: <a class='type' href='../libc/type.c_uchar.html' title='libc::c_uchar'>c_uchar</a>,
+    pub timeout: <a class='type' href='../libc/type.c_uint.html' title='libc::c_uint'>c_uint</a>,
+    pub status: <a class='type' href='../libc/type.c_int.html' title='libc::c_int'>c_int</a>,
+    pub length: <a class='type' href='../libc/type.c_int.html' title='libc::c_int'>c_int</a>,
+    pub actual_length: <a class='type' href='../libc/type.c_int.html' title='libc::c_int'>c_int</a>,
+    pub callback: <a class='type' href='../libusb_sys/type.libusb_transfer_cb_fn.html' title='libusb_sys::libusb_transfer_cb_fn'>libusb_transfer_cb_fn</a>,
+    pub user_data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../libc/enum.c_void.html' title='libc::c_void'>c_void</a>,
+    pub buffer: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='type' href='../libc/type.c_uchar.html' title='libc::c_uchar'>c_uchar</a>,
+    pub num_iso_packets: <a class='type' href='../libc/type.c_int.html' title='libc::c_int'>c_int</a>,
+    pub iso_packet_desc: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.array.html'>[</a><a class='struct' href='../libusb_sys/struct.libusb_iso_packet_descriptor.html' title='libusb_sys::libusb_iso_packet_descriptor'>libusb_iso_packet_descriptor</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.array.html'>; 0]</a>,
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.dev_handle'><code>dev_handle</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.flags'><code>flags</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.endpoint'><code>endpoint</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.transfer_type'><code>transfer_type</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.timeout'><code>timeout</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.status'><code>status</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.length'><code>length</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.actual_length'><code>actual_length</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.callback'><code>callback</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.user_data'><code>user_data</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.buffer'><code>buffer</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.num_iso_packets'><code>num_iso_packets</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.iso_packet_desc'><code>iso_packet_desc</code></td><td></td></tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "libusb_sys";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

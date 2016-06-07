@@ -7,6 +7,8 @@ use std::io::prelude::*;
 use std::io::{Cursor, Error, ErrorKind};
 use std::io;
 use std::time::Duration;
+use time;
+
 
 enum_from_primitive! {
 
@@ -110,9 +112,48 @@ pub trait PtpCommandCode: Sized + Copy {
             *a as u16
         }
     }
+
+    fn enum_name(&self) -> String;
 }
 
-impl PtpCommandCode for StandardCommandCode {}
+impl PtpCommandCode for StandardCommandCode {
+    fn enum_name(&self) -> String {
+        use ::self::StandardCommandCode::*;
+        match *self {
+            Undefined => "Undefined".to_string(), 
+            GetDeviceInfo => "GetDeviceInfo".to_string(), 
+            OpenSession => "OpenSession".to_string(), 
+            CloseSession => "CloseSession".to_string(), 
+            GetStorageIDs => "GetStorageIDs".to_string(), 
+            GetStorageInfo => "GetStorageInfo".to_string(), 
+            GetNumObjects => "GetNumObjects".to_string(), 
+            GetObjectHandles => "GetObjectHandles".to_string(), 
+            GetObjectInfo => "GetObjectInfo".to_string(), 
+            GetObject => "GetObject".to_string(), 
+            GetThumb => "GetThumb".to_string(), 
+            DeleteObject => "DeleteObject".to_string(), 
+            SendObjectInfo => "SendObjectInfo".to_string(), 
+            SendObject => "SendObject".to_string(), 
+            InitiateCapture => "InitiateCapture".to_string(), 
+            FormatStore => "FormatStore".to_string(), 
+            ResetDevice => "ResetDevice".to_string(), 
+            SelfTest => "SelfTest".to_string(), 
+            SetObjectProtection => "SetObjectProtection".to_string(), 
+            PowerDown => "PowerDown".to_string(), 
+            GetDevicePropDesc => "GetDevicePropDesc".to_string(), 
+            GetDevicePropValue => "GetDevicePropValue".to_string(), 
+            SetDevicePropValue => "SetDevicePropValue".to_string(), 
+            ResetDevicePropValue => "ResetDevicePropValue".to_string(), 
+            TerminateOpenCapture => "TerminateOpenCapture".to_string(), 
+            MoveObject => "MoveObject".to_string(), 
+            CopyObject => "CopyObject".to_string(), 
+            GetPartialObject => "GetPartialObject".to_string(), 
+            InitiateOpenCapture => "InitiateOpenCapture".to_string(),
+        }
+    }
+}
+
+
 
 
 #[derive(Debug)]
@@ -619,8 +660,6 @@ impl PtpTransaction {
     pub fn parse(buf: &[u8]) -> io::Result<(PtpContainerType, PtpTransaction)> {
         let mut cur = Cursor::new(buf);
 
-        // println!("OH? {:?}", buf.len());
-
         let len = try!(cur.read_u32::<LittleEndian>());
 
         let msgtype = try!(cur.read_u16::<LittleEndian>());
@@ -701,6 +740,8 @@ impl<'a> PtpCamera<'a> {
         ptp_gen_cmd_message(&mut cmd_message, code, self.current_tid, params);
 
         loop {
+            let timespec = time::get_time();
+            trace!("Write Cmnd [{}:{:09}] - {}, tid:{}, params:{:?}",  timespec.sec, timespec.nsec, code.enum_name(), self.current_tid, params);
             match self.handle.write_bulk(self.ep_out.address, &cmd_message, timeout) {
                 Ok(_) => {
                     break;
@@ -714,7 +755,8 @@ impl<'a> PtpCamera<'a> {
         if let Some(data) = data {
             let mut data_message = vec![];
             ptp_gen_message(&mut data_message, PtpContainerType::Data, code, self.current_tid, data);
-            // println!("OUT DATA {:?}", data_message);
+            let timespec = time::get_time();
+            trace!("Write Data [{}:{:09}] - {}, tid:{}, len:{}", timespec.sec, timespec.nsec, code.enum_name(), self.current_tid, data.len());
             self.handle.write_bulk(self.ep_out.address, &data_message, timeout).ok();
         }
 
@@ -736,13 +778,14 @@ impl<'a> PtpCamera<'a> {
                 let remaining_buf = unsafe {
                     ::std::slice::from_raw_parts_mut(self.buf.get_unchecked_mut(current_len) as *mut _, chunk_size)
                 };
-                // println!("reading into buf [{:?}] {:?}", current_len, remaining_buf.len());
+                let timespec = time::get_time();
+                trace!("Read Data  [{}:{:09}] - length:{:?} remaining:{:?}", timespec.sec, timespec.nsec, current_len, remaining_buf.len());
                 match self.handle.read_bulk(self.ep_in.address, remaining_buf, timeout) {
                     Ok(len) => {
                         unsafe {
                             self.buf.set_len(current_len + len);
                         }
-                        // println!("new buf len [{:?}] into {:?}", self.buf.len(), remaining_buf.len());
+                        // debug!("new buf len [{:?}] into {:?}", self.buf.len(), remaining_buf.len());
                         if len == remaining_buf.len() {
                             continue;
                         }
@@ -750,11 +793,11 @@ impl<'a> PtpCamera<'a> {
                     }
                     Err(libusb::Error::NotFound) |
                     Err(libusb::Error::NoDevice) => {
-                        println!("NotFound");
+                        error!("Device not found, exit(40)");
                         ::std::process::exit(40);
                     }
                     err => {
-                        println!("ERROR in read {:?}", err);
+                        error!("ERROR in read {:?}, exit(41)", err);
                         ::std::process::exit(41);
                     }
                 }
@@ -891,8 +934,9 @@ impl<'a> PtpCamera<'a> {
             .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
         assert_eq!(code, PtpResponseCode::Ok);
 
-        PtpDeviceInfo::decode(&res.data)
-        // println!("device_info {:?}", device_info);
+        let device_info = PtpDeviceInfo::decode(&res.data);
+        debug!("device_info {:?}", device_info);
+        device_info
     }
 
     pub fn open_session(&mut self) {
@@ -908,12 +952,12 @@ impl<'a> PtpCamera<'a> {
 
     pub fn close_session(&mut self) {
         let res = self.command(StandardCommandCode::CloseSession, &vec![], None)
-            .expect("OpenSession failed.");
+            .expect("CloseSession failed.");
         let _ = res.code::<PtpResponseCode>()
             .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
 
         // assert_eq!(code, PtpResponseCode::Ok);
-        // println!("Close session returned code: {:?}", code);
+        debug!("Close session returned code: {:?}", res.code);
     }
 }
 
@@ -940,7 +984,8 @@ pub fn open_device(context: &mut libusb::Context, vid: u16, pid: u16) -> Option<
     None
 }
 
-pub fn find_readable_endpoint(device: &mut libusb::Device, device_desc: &libusb::DeviceDescriptor, direction: libusb::Direction, transfer_type: libusb::TransferType) -> Option<EndpointAddress> {
+pub fn find_readable_endpoint(device: &mut libusb::Device, device_desc: &libusb::DeviceDescriptor,
+                              direction: libusb::Direction, transfer_type: libusb::TransferType) -> Option<EndpointAddress> {
     for n in 0..device_desc.num_configurations() {
         let config_desc = match device.config_descriptor(n) {
             Ok(c) => c,

@@ -209,7 +209,9 @@ pub trait PtpRead: ReadBytesExt {
     }
 
     #[inline(always)]
-    fn read_ptp_vec<T: Sized, U: Fn(&mut Self) -> io::Result<T>>(&mut self, func: U) -> io::Result<Vec<T>> {
+    fn read_ptp_vec<T: Sized, U: Fn(&mut Self) -> io::Result<T>>(&mut self,
+                                                                 func: U)
+                                                                 -> io::Result<Vec<T>> {
         let len = try!(self.read_u32::<LittleEndian>()) as usize;
         let mut res = vec![];
         for _ in 0..len {
@@ -262,13 +264,14 @@ pub trait PtpRead: ReadBytesExt {
         let len = try!(self.read_u8()) as usize;
         if len > 0 {
             let mut data = vec![];
-            for _ in 0..(len-1)*2 {
+            for _ in 0..(len - 1) * 2 {
                 data.push(try!(self.read_u8()));
             }
             try!(self.read_u8());
             try!(self.read_u8());
             return UTF_16LE.decode(&data, DecoderTrap::Ignore)
-                .or(Err(Error::new(ErrorKind::InvalidData, format!("Invalid UTF16 data: {:?}", data))));
+                .or(Err(Error::new(ErrorKind::InvalidData,
+                                   format!("Invalid UTF16 data: {:?}", data))));
         }
         Ok("".into())
     }
@@ -301,7 +304,7 @@ pub enum PtpDataType {
     AUINT64(Vec<u64>),
     AINT128(Vec<(u64, u64)>),
     AUINT128(Vec<(u64, u64)>),
-    STR(String)
+    STR(String),
 }
 
 impl PtpDataType {
@@ -310,92 +313,109 @@ impl PtpDataType {
         let mut out = vec![];
         match self {
             // UNDEF => {},
-            &INT8(val) => { out.write_i8(val).ok(); },
-            &UINT8(val) => { out.write_u8(val).ok(); },
-            &INT16(val) => { out.write_i16::<LittleEndian>(val).ok(); },
-            &UINT16(val) => { out.write_u16::<LittleEndian>(val).ok(); },
-            &INT32(val) => { out.write_i32::<LittleEndian>(val).ok(); },
-            &UINT32(val) => { out.write_u32::<LittleEndian>(val).ok(); },
-            &INT64(val) => { out.write_i64::<LittleEndian>(val).ok(); },
-            &UINT64(val) => { out.write_u64::<LittleEndian>(val).ok(); },
+            &INT8(val) => {
+                out.write_i8(val).ok();
+            }
+            &UINT8(val) => {
+                out.write_u8(val).ok();
+            }
+            &INT16(val) => {
+                out.write_i16::<LittleEndian>(val).ok();
+            }
+            &UINT16(val) => {
+                out.write_u16::<LittleEndian>(val).ok();
+            }
+            &INT32(val) => {
+                out.write_i32::<LittleEndian>(val).ok();
+            }
+            &UINT32(val) => {
+                out.write_u32::<LittleEndian>(val).ok();
+            }
+            &INT64(val) => {
+                out.write_i64::<LittleEndian>(val).ok();
+            }
+            &UINT64(val) => {
+                out.write_u64::<LittleEndian>(val).ok();
+            }
             &INT128((hi, lo)) => {
                 out.write_u64::<LittleEndian>(lo).ok();
                 out.write_u64::<LittleEndian>(hi).ok();
-            },
+            }
             &UINT128((hi, lo)) => {
                 out.write_u64::<LittleEndian>(lo).ok();
                 out.write_u64::<LittleEndian>(hi).ok();
-            },
+            }
             &AINT8(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_i8(*item).ok();
                 }
-            },
+            }
             &AUINT8(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_u8(*item).ok();
                 }
-            },
+            }
             &AINT16(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_i16::<LittleEndian>(*item).ok();
                 }
-            },
+            }
             &AUINT16(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_u16::<LittleEndian>(*item).ok();
                 }
-            },
+            }
             &AINT32(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_i32::<LittleEndian>(*item).ok();
                 }
-            },
+            }
             &AUINT32(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_u32::<LittleEndian>(*item).ok();
                 }
-            },
+            }
             &AINT64(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_i64::<LittleEndian>(*item).ok();
                 }
-            },
+            }
             &AUINT64(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for item in val {
                     out.write_u64::<LittleEndian>(*item).ok();
                 }
-            },
+            }
             &AINT128(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for &(hi, lo) in val {
                     out.write_u64::<LittleEndian>(lo).ok();
                     out.write_u64::<LittleEndian>(hi).ok();
                 }
-            },
+            }
             &AUINT128(ref val) => {
                 out.write_u32::<LittleEndian>(val.len() as u32).ok();
                 for &(hi, lo) in val {
                     out.write_u64::<LittleEndian>(lo).ok();
                     out.write_u64::<LittleEndian>(hi).ok();
                 }
-            },
+            }
             &STR(ref val) => {
                 out.write_u8(((val.len() as u8) * 2) + 1).ok();
                 if val.len() > 0 {
-                    out.write_all(UTF_16LE.encode(&val, EncoderTrap::Ignore).unwrap().as_ref()).ok();
+                    out.write_all(UTF_16LE.encode(&val, EncoderTrap::Ignore).unwrap().as_ref())
+                        .ok();
                     out.write_all(b"\0\0").ok();
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
         out
     }
@@ -602,8 +622,14 @@ impl PtpStorageInfo {
 #[derive(Debug)]
 pub enum PtpFormData {
     None,
-    Range { minValue: PtpDataType, maxValue: PtpDataType, step: PtpDataType, },
-    Enumeration { array: Vec<PtpDataType> },
+    Range {
+        minValue: PtpDataType,
+        maxValue: PtpDataType,
+        step: PtpDataType,
+    },
+    Enumeration {
+        array: Vec<PtpDataType>,
+    },
 }
 
 #[allow(non_snake_case)]
@@ -634,21 +660,25 @@ impl PtpPropInfo {
             Form: {
                 match try!(cur.read_u8()) {
                     // 0x00 => PtpFormData::None,
-                    0x01 => PtpFormData::Range {
-                        minValue: try!(PtpDataType::read_type(data_type, cur)),
-                        maxValue: try!(PtpDataType::read_type(data_type, cur)),
-                        step: try!(PtpDataType::read_type(data_type, cur)),
-                    },
-                    0x02 => PtpFormData::Enumeration {
-                        array: {
-                            let len = try!(cur.read_u16::<LittleEndian>()) as usize;
-                            let mut arr = Vec::with_capacity(len);
-                            for _ in 0..len {
-                                arr.push(try!(PtpDataType::read_type(data_type, cur)));
-                            }
-                            arr
+                    0x01 => {
+                        PtpFormData::Range {
+                            minValue: try!(PtpDataType::read_type(data_type, cur)),
+                            maxValue: try!(PtpDataType::read_type(data_type, cur)),
+                            step: try!(PtpDataType::read_type(data_type, cur)),
                         }
-                    },
+                    }
+                    0x02 => {
+                        PtpFormData::Enumeration {
+                            array: {
+                                let len = try!(cur.read_u16::<LittleEndian>()) as usize;
+                                let mut arr = Vec::with_capacity(len);
+                                for _ in 0..len {
+                                    arr.push(try!(PtpDataType::read_type(data_type, cur)));
+                                }
+                                arr
+                            },
+                        }
+                    }
                     _ => PtpFormData::None,
                 }
             },
@@ -664,15 +694,21 @@ impl PtpTransaction {
 
         let msgtype = try!(cur.read_u16::<LittleEndian>());
         let mtype = try!(FromPrimitive::from_u16(msgtype)
-            .ok_or(Error::new(ErrorKind::InvalidData, format!("Invalid message type {:x}.", msgtype))));
+            .ok_or(Error::new(ErrorKind::InvalidData,
+                              format!("Invalid message type {:x}.", msgtype))));
         let code = try!(cur.read_u16::<LittleEndian>());
         let tid = try!(cur.read_u32::<LittleEndian>());
 
-        let data_len = if len > 12 { len - 12 } else { 0 };
+        let data_len = if len > 12 {
+            len - 12
+        } else {
+            0
+        };
         let mut data = Vec::with_capacity(data_len as usize);
         try!(cur.read_to_end(&mut data));
 
-        Ok((mtype, PtpTransaction {
+        Ok((mtype,
+            PtpTransaction {
             tid: tid,
             code: code,
             data: data,
@@ -688,7 +724,11 @@ impl PtpTransaction {
     }
 }
 
-pub fn ptp_gen_message<T: PtpCommandCode>(w: &mut Write, kind: PtpContainerType, code: T, tid: u32, payload: &[u8]) {
+pub fn ptp_gen_message<T: PtpCommandCode>(w: &mut Write,
+                                          kind: PtpContainerType,
+                                          code: T,
+                                          tid: u32,
+                                          payload: &[u8]) {
     let len: u32 = 12 + payload.len() as u32;
 
     w.write_u32::<LittleEndian>(len).ok();
@@ -711,11 +751,11 @@ pub struct EndpointAddress {
     pub config: u8,
     pub iface: u8,
     pub setting: u8,
-    pub address: u8
+    pub address: u8,
 }
 
 pub struct PtpCamera<'a> {
-    pub buf: Vec<u8>, //TODO make this private
+    pub buf: Vec<u8>, // TODO make this private
     pub ep_in: EndpointAddress,
     pub ep_out: EndpointAddress,
     pub ep_int: EndpointAddress,
@@ -724,7 +764,11 @@ pub struct PtpCamera<'a> {
 }
 
 impl<'a> PtpCamera<'a> {
-    pub fn command<T: PtpCommandCode>(&mut self, code: T, params: &[u32], data: Option<&[u8]>) -> io::Result<PtpTransaction> {
+    pub fn command<T: PtpCommandCode>(&mut self,
+                                      code: T,
+                                      params: &[u32],
+                                      data: Option<&[u8]>)
+                                      -> io::Result<PtpTransaction> {
         // transaction = PtpTransaction(code, self.current_tid, data, *params)
 
         let transaction = PtpTransaction {
@@ -741,7 +785,12 @@ impl<'a> PtpCamera<'a> {
 
         loop {
             let timespec = time::get_time();
-            trace!("Write Cmnd [{}:{:09}] - {}, tid:{}, params:{:?}",  timespec.sec, timespec.nsec, code.enum_name(), self.current_tid, params);
+            trace!("Write Cmnd [{}:{:09}] - {}, tid:{}, params:{:?}",
+                   timespec.sec,
+                   timespec.nsec,
+                   code.enum_name(),
+                   self.current_tid,
+                   params);
             match self.handle.write_bulk(self.ep_out.address, &cmd_message, timeout) {
                 Ok(_) => {
                     break;
@@ -754,9 +803,18 @@ impl<'a> PtpCamera<'a> {
 
         if let Some(data) = data {
             let mut data_message = vec![];
-            ptp_gen_message(&mut data_message, PtpContainerType::Data, code, self.current_tid, data);
+            ptp_gen_message(&mut data_message,
+                            PtpContainerType::Data,
+                            code,
+                            self.current_tid,
+                            data);
             let timespec = time::get_time();
-            trace!("Write Data [{}:{:09}] - {}, tid:{}, len:{}", timespec.sec, timespec.nsec, code.enum_name(), self.current_tid, data.len());
+            trace!("Write Data [{}:{:09}] - {}, tid:{}, len:{}",
+                   timespec.sec,
+                   timespec.nsec,
+                   code.enum_name(),
+                   self.current_tid,
+                   data.len());
             self.handle.write_bulk(self.ep_out.address, &data_message, timeout).ok();
         }
 
@@ -769,7 +827,7 @@ impl<'a> PtpCamera<'a> {
             }
 
             loop {
-                let chunk_size = 256*1024;
+                let chunk_size = 256 * 1024;
                 let current_len = self.buf.len();
                 let current_capacity = self.buf.capacity();
                 if current_capacity - current_len < chunk_size {
@@ -779,7 +837,11 @@ impl<'a> PtpCamera<'a> {
                     ::std::slice::from_raw_parts_mut(self.buf.get_unchecked_mut(current_len) as *mut _, chunk_size)
                 };
                 let timespec = time::get_time();
-                trace!("Read Data  [{}:{:09}] - length:{:?} remaining:{:?}", timespec.sec, timespec.nsec, current_len, remaining_buf.len());
+                trace!("Read Data  [{}:{:09}] - length:{:?} remaining:{:?}",
+                       timespec.sec,
+                       timespec.nsec,
+                       current_len,
+                       remaining_buf.len());
                 match self.handle.read_bulk(self.ep_in.address, remaining_buf, timeout) {
                     Ok(len) => {
                         unsafe {
@@ -820,7 +882,8 @@ impl<'a> PtpCamera<'a> {
         let res = self.command(StandardCommandCode::GetObjectInfo, &vec![handle], None)
             .expect("Command GetObjectInfo failed.");
         let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
+            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
+                             res.code));
         assert_eq!(code, PtpResponseCode::Ok);
 
         PtpObjectInfo::decode(&res.data).unwrap()
@@ -832,7 +895,8 @@ impl<'a> PtpCamera<'a> {
             let res = self.command(StandardCommandCode::GetObject, &vec![handle], None)
                 .expect("Command GetObjectInfo failed.");
             let code = res.code::<PtpResponseCode>()
-                .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
+                .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
+                                 res.code));
 
             if code == PtpResponseCode::AccessDenied {
                 continue;
@@ -842,12 +906,19 @@ impl<'a> PtpCamera<'a> {
         }
     }
 
-    pub fn get_objecthandles(&mut self, storage_id: u32, handle_id: u32, filter: Option<u32>) -> io::Result<Vec<u32>> {
-        let res = try!(self.command(StandardCommandCode::GetObjectHandles, &[storage_id, filter.unwrap_or(0x0), handle_id], None));
+    pub fn get_objecthandles(&mut self,
+                             storage_id: u32,
+                             handle_id: u32,
+                             filter: Option<u32>)
+                             -> io::Result<Vec<u32>> {
+        let res = try!(self.command(StandardCommandCode::GetObjectHandles,
+                                    &[storage_id, filter.unwrap_or(0x0), handle_id],
+                                    None));
         let code = res.code::<PtpResponseCode>()
             .expect(&format!("Unexpected response code {:?}", res.code));
         if code != PtpResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "Unexpected response code {:?}"));
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
+                                      "Unexpected response code {:?}"));
         }
 
         // Parse ObjectHandleArrray
@@ -859,21 +930,34 @@ impl<'a> PtpCamera<'a> {
         Ok(value)
     }
 
-    pub fn get_objecthandles_root(&mut self, storage_id: u32, filter: Option<u32>) -> io::Result<Vec<u32>> {
+    pub fn get_objecthandles_root(&mut self,
+                                  storage_id: u32,
+                                  filter: Option<u32>)
+                                  -> io::Result<Vec<u32>> {
         self.get_objecthandles(storage_id, 0xFFFFFFFF, filter)
     }
 
-    pub fn get_objecthandles_all(&mut self, storage_id: u32, filter: Option<u32>) -> io::Result<Vec<u32>> {
+    pub fn get_objecthandles_all(&mut self,
+                                 storage_id: u32,
+                                 filter: Option<u32>)
+                                 -> io::Result<Vec<u32>> {
         self.get_objecthandles(storage_id, 0x0, filter)
     }
 
     // handle_id: None == root of store
-    pub fn get_numobjects(&mut self, storage_id: u32, handle_id: u32, filter: Option<u32>) -> io::Result<u32> {
-        let res = try!(self.command(StandardCommandCode::GetNumObjects, &[storage_id, filter.unwrap_or(0x0), handle_id], None));
+    pub fn get_numobjects(&mut self,
+                          storage_id: u32,
+                          handle_id: u32,
+                          filter: Option<u32>)
+                          -> io::Result<u32> {
+        let res = try!(self.command(StandardCommandCode::GetNumObjects,
+                                    &[storage_id, filter.unwrap_or(0x0), handle_id],
+                                    None));
         let code = res.code::<PtpResponseCode>()
             .expect(&format!("Unexpected response code {:?}", res.code));
         if code != PtpResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "Unexpected response code {:?}"));
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
+                                      "Unexpected response code {:?}"));
         }
 
         // Parse ObjectHandleArrray
@@ -890,7 +974,8 @@ impl<'a> PtpCamera<'a> {
         let code = res.code::<PtpResponseCode>()
             .expect(&format!("Unexpected response code {:?}", res.code));
         if code != PtpResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "Unexpected response code {:?}"));
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
+                                      "Unexpected response code {:?}"));
         }
 
         // Parse ObjectHandleArrray
@@ -907,7 +992,8 @@ impl<'a> PtpCamera<'a> {
         let code = res.code::<PtpResponseCode>()
             .expect(&format!("Unexpected response code {:?}", res.code));
         if code != PtpResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied, "Unexpected response code {:?}"));
+            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
+                                      "Unexpected response code {:?}"));
         }
 
         // Parse ObjectHandleArrray
@@ -919,7 +1005,10 @@ impl<'a> PtpCamera<'a> {
         Ok(value)
     }
 
-    pub fn get_numobjects_roots(&mut self, storage_id: u32, filter: Option<u32>) -> io::Result<u32> {
+    pub fn get_numobjects_roots(&mut self,
+                                storage_id: u32,
+                                filter: Option<u32>)
+                                -> io::Result<u32> {
         self.get_numobjects(storage_id, 0xFFFFFFFF, filter)
     }
 
@@ -931,7 +1020,8 @@ impl<'a> PtpCamera<'a> {
         let res = self.command(StandardCommandCode::GetDeviceInfo, &vec![0, 0, 0], None)
             .expect("GetDeviceInfo failed.");
         let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
+            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
+                             res.code));
         assert_eq!(code, PtpResponseCode::Ok);
 
         let device_info = PtpDeviceInfo::decode(&res.data);
@@ -942,10 +1032,13 @@ impl<'a> PtpCamera<'a> {
     pub fn open_session(&mut self) {
         let session_id = 3;
 
-        let res = self.command(StandardCommandCode::OpenSession, &vec![session_id, 0, 0], None)
+        let res = self.command(StandardCommandCode::OpenSession,
+                     &vec![session_id, 0, 0],
+                     None)
             .expect("OpenSession failed.");
         let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
+            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
+                             res.code));
 
         assert_eq!(code, PtpResponseCode::Ok);
     }
@@ -954,29 +1047,33 @@ impl<'a> PtpCamera<'a> {
         let res = self.command(StandardCommandCode::CloseSession, &vec![], None)
             .expect("CloseSession failed.");
         let _ = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.", res.code));
+            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
+                             res.code));
 
         // assert_eq!(code, PtpResponseCode::Ok);
         debug!("Close session returned code: {:?}", res.code);
     }
 }
 
-pub fn open_device(context: &mut libusb::Context, vid: u16, pid: u16) -> Option<(libusb::Device, libusb::DeviceDescriptor, libusb::DeviceHandle)> {
+pub fn open_device(context: &mut libusb::Context,
+                   vid: u16,
+                   pid: u16)
+                   -> Option<(libusb::Device, libusb::DeviceDescriptor, libusb::DeviceHandle)> {
     let devices = match context.devices() {
         Ok(d) => d,
-        Err(_) => return None
+        Err(_) => return None,
     };
 
     for mut device in devices.iter() {
         let device_desc = match device.device_descriptor() {
             Ok(d) => d,
-            Err(_) => continue
+            Err(_) => continue,
         };
 
         if device_desc.vendor_id() == vid && device_desc.product_id() == pid {
             match device.open() {
                 Ok(handle) => return Some((device, device_desc, handle)),
-                Err(_) => continue
+                Err(_) => continue,
             }
         }
     }
@@ -984,23 +1081,27 @@ pub fn open_device(context: &mut libusb::Context, vid: u16, pid: u16) -> Option<
     None
 }
 
-pub fn find_readable_endpoint(device: &mut libusb::Device, device_desc: &libusb::DeviceDescriptor,
-                              direction: libusb::Direction, transfer_type: libusb::TransferType) -> Option<EndpointAddress> {
+pub fn find_readable_endpoint(device: &mut libusb::Device,
+                              device_desc: &libusb::DeviceDescriptor,
+                              direction: libusb::Direction,
+                              transfer_type: libusb::TransferType)
+                              -> Option<EndpointAddress> {
     for n in 0..device_desc.num_configurations() {
         let config_desc = match device.config_descriptor(n) {
             Ok(c) => c,
-            Err(_) => continue
+            Err(_) => continue,
         };
 
         for interface in config_desc.interfaces() {
             for interface_desc in interface.descriptors().filter(|x| x.class_code() == 6) {
                 for endpoint_desc in interface_desc.endpoint_descriptors() {
-                    if endpoint_desc.direction() == direction && endpoint_desc.transfer_type() == transfer_type {
+                    if endpoint_desc.direction() == direction &&
+                       endpoint_desc.transfer_type() == transfer_type {
                         return Some(EndpointAddress {
                             config: config_desc.number(),
                             iface: interface_desc.interface_number(),
                             setting: interface_desc.setting_number(),
-                            address: endpoint_desc.address()
+                            address: endpoint_desc.address(),
                         });
                     }
                 }
@@ -1011,7 +1112,9 @@ pub fn find_readable_endpoint(device: &mut libusb::Device, device_desc: &libusb:
     None
 }
 
-pub fn configure_endpoint<'a>(handle: &'a mut libusb::DeviceHandle, endpoint: &EndpointAddress) -> libusb::Result<()> {
+pub fn configure_endpoint<'a>(handle: &'a mut libusb::DeviceHandle,
+                              endpoint: &EndpointAddress)
+                              -> libusb::Result<()> {
     try!(handle.set_active_configuration(endpoint.config));
     try!(handle.claim_interface(endpoint.iface));
     // try!(handle.set_alternate_setting(endpoint.iface, endpoint.setting));
@@ -1032,7 +1135,12 @@ impl PtpObjectTree {
 
         while !input.is_empty() {
             for (prefix, item) in input.split_off(0) {
-                let path = prefix.clone() + (if prefix.is_empty() { "" } else { "/" }) + &item.info.Filename;
+                let path = prefix.clone() +
+                           (if prefix.is_empty() {
+                    ""
+                } else {
+                    "/"
+                }) + &item.info.Filename;
 
                 output.push((path.clone(), item.clone()));
 

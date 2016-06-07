@@ -1,6 +1,6 @@
 [package]
 name = "ptp"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Tim Ryan <tim@3drobotics.com>"]
 description = "Picture Transfer Protocol driver in Rust."
 license = "MIT"
@@ -12,7 +12,6 @@ libusb = "0.2.2"
 byteorder = "0.4.2"
 num = "0.1.30"
 enum_primitive = "0.1.0"
-env_logger = "0.3"
 encoding = "0.2.32"
 log = "0.3"
 time = "0.1"

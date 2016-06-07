@@ -7,7 +7,6 @@ extern crate libusb;
 extern crate byteorder;
 extern crate num;
 extern crate encoding;
-extern crate env_logger;
 extern crate time;
 
 pub mod ptp;

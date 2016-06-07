@@ -807,8 +807,7 @@ impl<'a> PtpCamera<'a> {
 
             if mtype == PtpContainerType::Data && msg.is_response(&transaction) {
                 data = Some(msg.data);
-            } 
-            else if mtype == PtpContainerType::Response && msg.is_response(&transaction) {
+            } else if mtype == PtpContainerType::Response && msg.is_response(&transaction) {
                 if let Some(data) = data {
                     msg.data = data;
                 }
@@ -986,7 +985,7 @@ pub fn open_device(context: &mut libusb::Context, vid: u16, pid: u16) -> Option<
 }
 
 pub fn find_readable_endpoint(device: &mut libusb::Device, device_desc: &libusb::DeviceDescriptor,
-    direction: libusb::Direction, transfer_type: libusb::TransferType) -> Option<EndpointAddress> {
+                              direction: libusb::Direction, transfer_type: libusb::TransferType) -> Option<EndpointAddress> {
     for n in 0..device_desc.num_configurations() {
         let config_desc = match device.config_descriptor(n) {
             Ok(c) => c,

@@ -65,7 +65,7 @@ pub enum PtpResponseCode {
 
 }
 
-fn response_code_to_string(response: PtpResponseCode) -> String {
+fn response_code_to_string(response: PtpResponseCode) -> &'static str {
     use ptp::PtpResponseCode::*;
     match response {
         Undefined => "Undefined",
@@ -101,7 +101,7 @@ fn response_code_to_string(response: PtpResponseCode) -> String {
         SessionAlreadyOpen => "SessionAlreadyOpen",
         TransactionCancelled => "TransactionCancelled",
         SpecificationOfDestinationUnsupported => "SpecificationOfDestinationUnsupported",
-    }.to_string()
+    }
 }
 
 enum_from_primitive! {

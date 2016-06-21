@@ -27,45 +27,6 @@ enum_from_primitive! {
 
 #[derive(PartialEq, Clone, Copy, Debug)]
 #[repr(u16)]
-pub enum StandardCommandCode {
-    Undefined = 0x1000,
-    GetDeviceInfo = 0x1001,
-    OpenSession = 0x1002,
-    CloseSession = 0x1003,
-    GetStorageIDs = 0x1004,
-    GetStorageInfo = 0x1005,
-    GetNumObjects = 0x1006,
-    GetObjectHandles = 0x1007,
-    GetObjectInfo = 0x1008,
-    GetObject = 0x1009,
-    GetThumb = 0x100A,
-    DeleteObject = 0x100B,
-    SendObjectInfo = 0x100C,
-    SendObject = 0x100D,
-    InitiateCapture = 0x100E,
-    FormatStore = 0x100F,
-    ResetDevice = 0x1010,
-    SelfTest = 0x1011,
-    SetObjectProtection = 0x1012,
-    PowerDown = 0x1013,
-    GetDevicePropDesc = 0x1014,
-    GetDevicePropValue = 0x1015,
-    SetDevicePropValue = 0x1016,
-    ResetDevicePropValue = 0x1017,
-    TerminateOpenCapture = 0x1018,
-    MoveObject = 0x1019,
-    CopyObject = 0x101A,
-    GetPartialObject = 0x101B,
-    InitiateOpenCapture = 0x101C
-}
-
-}
-
-
-enum_from_primitive! {
-
-#[derive(PartialEq, Clone, Copy, Debug)]
-#[repr(u16)]
 pub enum PtpResponseCode {
     Undefined = 0x2000,
     Ok = 0x2001,
@@ -100,6 +61,83 @@ pub enum PtpResponseCode {
     SessionAlreadyOpen = 0x201E,
     TransactionCancelled = 0x201F,
     SpecificationOfDestinationUnsupported = 0x2020,
+}
+
+}
+
+fn response_code_to_string(response: PtpResponseCode) -> String {
+    use ptp::PtpResponseCode::*;
+    match response {
+        Undefined => "Undefined",
+        Ok => "Ok",
+        GeneralError => "GeneralError",
+        SessionNotOpen => "SessionNotOpen",
+        InvalidTransactionId => "InvalidTransactionId",
+        OperationNotSupported => "OperationNotSupported",
+        ParameterNotSupported => "ParameterNotSupported",
+        IncompleteTransfer => "IncompleteTransfer",
+        InvalidStorageId => "InvalidStorageId",
+        InvalidObjectHandle => "InvalidObjectHandle",
+        DevicePropNotSupported => "DevicePropNotSupported",
+        InvalidObjectFormatCode => "InvalidObjectFormatCode",
+        StoreFull => "StoreFull",
+        ObjectWriteProtected => "ObjectWriteProtected",
+        StoreReadOnly => "StoreReadOnly",
+        AccessDenied => "AccessDenied",
+        NoThumbnailPresent => "NoThumbnailPresent",
+        SelfTestFailed => "SelfTestFailed",
+        PartialDeletion => "PartialDeletion",
+        StoreNotAvailable => "StoreNotAvailable",
+        SpecificationByFormatUnsupported => "SpecificationByFormatUnsupported",
+        NoValidObjectInfo => "NoValidObjectInfo",
+        InvalidCodeFormat => "InvalidCodeFormat",
+        UnknownVendorCode => "UnknownVendorCode",
+        CaptureAlreadyTerminated => "CaptureAlreadyTerminated",
+        DeviceBusy => "DeviceBusy",
+        InvalidParentObject => "InvalidParentObject",
+        InvalidDevicePropFormat => "InvalidDevicePropFormat",
+        InvalidDevicePropValue => "InvalidDevicePropValue",
+        InvalidParameter => "InvalidParameter",
+        SessionAlreadyOpen => "SessionAlreadyOpen",
+        TransactionCancelled => "TransactionCancelled",
+        SpecificationOfDestinationUnsupported => "SpecificationOfDestinationUnsupported",
+    }.to_string()
+}
+
+enum_from_primitive! {
+
+#[derive(PartialEq, Clone, Copy, Debug)]
+#[repr(u16)]
+pub enum StandardCommandCode {
+    Undefined = 0x1000,
+    GetDeviceInfo = 0x1001,
+    OpenSession = 0x1002,
+    CloseSession = 0x1003,
+    GetStorageIDs = 0x1004,
+    GetStorageInfo = 0x1005,
+    GetNumObjects = 0x1006,
+    GetObjectHandles = 0x1007,
+    GetObjectInfo = 0x1008,
+    GetObject = 0x1009,
+    GetThumb = 0x100A,
+    DeleteObject = 0x100B,
+    SendObjectInfo = 0x100C,
+    SendObject = 0x100D,
+    InitiateCapture = 0x100E,
+    FormatStore = 0x100F,
+    ResetDevice = 0x1010,
+    SelfTest = 0x1011,
+    SetObjectProtection = 0x1012,
+    PowerDown = 0x1013,
+    GetDevicePropDesc = 0x1014,
+    GetDevicePropValue = 0x1015,
+    SetDevicePropValue = 0x1016,
+    ResetDevicePropValue = 0x1017,
+    TerminateOpenCapture = 0x1018,
+    MoveObject = 0x1019,
+    CopyObject = 0x101A,
+    GetPartialObject = 0x101B,
+    InitiateOpenCapture = 0x101C
 }
 
 }
@@ -918,7 +956,7 @@ impl<'a> PtpCamera<'a> {
             .expect(&format!("Unexpected response code {:?}", res.code));
         if code != PtpResponseCode::Ok {
             return Err(io::Error::new(io::ErrorKind::PermissionDenied,
-                                      "Unexpected response code {:?}"));
+                                      format!("Unexpected response code {:?}", res.code)));
         }
 
         // Parse ObjectHandleArrray
@@ -1046,12 +1084,12 @@ impl<'a> PtpCamera<'a> {
     pub fn close_session(&mut self) {
         let res = self.command(StandardCommandCode::CloseSession, &vec![], None)
             .expect("CloseSession failed.");
-        let _ = res.code::<PtpResponseCode>()
+        let response = res.code::<PtpResponseCode>()
             .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
                              res.code));
 
         // assert_eq!(code, PtpResponseCode::Ok);
-        debug!("Close session returned code: {:?}", res.code);
+        debug!("Close session returned code: {:?}", response_code_to_string(response));
     }
 }
 

@@ -856,15 +856,48 @@ pub struct EndpointAddress {
 }
 
 pub struct PtpCamera<'a> {
-    pub buf: Vec<u8>, // TODO make this private
-    pub ep_in: EndpointAddress,
-    pub ep_out: EndpointAddress,
-    pub ep_int: EndpointAddress,
-    pub current_tid: u32,
-    pub handle: libusb::DeviceHandle<'a>,
+    buf: Vec<u8>, // TODO make this private
+    iface: u8,
+    ep_in: u8,
+    ep_out: u8,
+    _ep_int: u8,
+    current_tid: u32,
+    handle: libusb::DeviceHandle<'a>,
 }
 
 impl<'a> PtpCamera<'a> {
+    pub fn new(device: &mut libusb::Device, mut handle: libusb::DeviceHandle<'a>) -> Result<PtpCamera<'a>, Error> {
+        // TODO: handle non-default configurations once https://github.com/dcuddeback/libusb-rs/pull/9 is released
+        let config_desc = try!(device.config_descriptor(0));
+        
+        let interface_desc = try!(config_desc.interfaces()
+            .flat_map(|i| i.descriptors())
+            .find(|x| x.class_code() == 6)
+            .ok_or(libusb::Error::NotFound));
+            
+        debug!("Found interface {}", interface_desc.interface_number());
+
+        try!(handle.claim_interface(interface_desc.interface_number()));
+        try!(handle.set_alternate_setting(interface_desc.interface_number(), interface_desc.setting_number()));
+        
+        let find_endpoint = |direction, transfer_type| {
+            interface_desc.endpoint_descriptors()
+                .find(|ep| ep.direction() == direction && ep.transfer_type() == transfer_type)
+                .map(|x| x.address())
+                .ok_or(libusb::Error::NotFound)
+        };
+
+        Ok(PtpCamera {
+            buf: Vec::with_capacity(1*1024*1024),
+            iface: interface_desc.interface_number(),
+            ep_in:  try!(find_endpoint(libusb::Direction::In, libusb::TransferType::Bulk)),
+            ep_out: try!(find_endpoint(libusb::Direction::Out, libusb::TransferType::Bulk)),
+            _ep_int: try!(find_endpoint(libusb::Direction::In, libusb::TransferType::Interrupt)),
+            current_tid: 0,
+            handle: handle,
+        })
+    }
+    
     pub fn command(&mut self,
                    code: CommandCode,
                    params: &[u32],
@@ -892,7 +925,7 @@ impl<'a> PtpCamera<'a> {
                self.current_tid,
                params);
         
-        try!(self.handle.write_bulk(self.ep_out.address, &cmd_message, timeout));
+        try!(self.handle.write_bulk(self.ep_out, &cmd_message, timeout));
 
         if let Some(data) = data {
             let mut data_message = vec![];
@@ -909,7 +942,7 @@ impl<'a> PtpCamera<'a> {
                    StandardCommandCode::name(code).unwrap_or("unknown"),
                    self.current_tid,
                    data.len());
-            try!(self.handle.write_bulk(self.ep_out.address, &data_message, timeout));
+            try!(self.handle.write_bulk(self.ep_out, &data_message, timeout));
         }
 
         self.current_tid += 1;
@@ -936,8 +969,7 @@ impl<'a> PtpCamera<'a> {
                        timespec.nsec,
                        current_len,
                        remaining_buf.len());
-                
-                let len = try!(self.handle.read_bulk(self.ep_in.address, remaining_buf, timeout));
+                let len = try!(self.handle.read_bulk(self.ep_in, remaining_buf, timeout));
                 unsafe {
                     self.buf.set_len(current_len + len);
                 }
@@ -1084,6 +1116,12 @@ impl<'a> PtpCamera<'a> {
         
         Ok(())
     }
+    
+    pub fn disconnect(&mut self) -> Result<(), Error> {
+        try!(self.close_session());
+        try!(self.handle.release_interface(self.iface));
+        Ok(())
+    }
 }
 
 pub fn open_device(context: &mut libusb::Context,
@@ -1110,46 +1148,6 @@ pub fn open_device(context: &mut libusb::Context,
     }
 
     None
-}
-
-pub fn find_readable_endpoint(device: &mut libusb::Device,
-                              device_desc: &libusb::DeviceDescriptor,
-                              direction: libusb::Direction,
-                              transfer_type: libusb::TransferType)
-                              -> Option<EndpointAddress> {
-    for n in 0..device_desc.num_configurations() {
-        let config_desc = match device.config_descriptor(n) {
-            Ok(c) => c,
-            Err(_) => continue,
-        };
-
-        for interface in config_desc.interfaces() {
-            for interface_desc in interface.descriptors().filter(|x| x.class_code() == 6) {
-                for endpoint_desc in interface_desc.endpoint_descriptors() {
-                    if endpoint_desc.direction() == direction &&
-                       endpoint_desc.transfer_type() == transfer_type {
-                        return Some(EndpointAddress {
-                            config: config_desc.number(),
-                            iface: interface_desc.interface_number(),
-                            setting: interface_desc.setting_number(),
-                            address: endpoint_desc.address(),
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    None
-}
-
-pub fn configure_endpoint<'a>(handle: &'a mut libusb::DeviceHandle,
-                              endpoint: &EndpointAddress)
-                              -> libusb::Result<()> {
-    try!(handle.set_active_configuration(endpoint.config));
-    try!(handle.claim_interface(endpoint.iface));
-    // try!(handle.set_alternate_setting(endpoint.iface, endpoint.setting));
-    Ok(())
 }
 
 #[derive(Debug, Clone)]

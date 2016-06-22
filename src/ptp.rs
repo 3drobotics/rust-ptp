@@ -23,176 +23,157 @@ pub enum PtpContainerType {
 
 }
 
-enum_from_primitive! {
+pub type ResponseCode = u16;
 
-#[derive(PartialEq, Clone, Copy, Debug)]
-#[repr(u16)]
-pub enum PtpResponseCode {
-    Undefined = 0x2000,
-    Ok = 0x2001,
-    GeneralError = 0x2002,
-    SessionNotOpen = 0x2003,
-    InvalidTransactionId = 0x2004,
-    OperationNotSupported = 0x2005,
-    ParameterNotSupported = 0x2006,
-    IncompleteTransfer = 0x2007,
-    InvalidStorageId = 0x2008,
-    InvalidObjectHandle = 0x2009,
-    DevicePropNotSupported = 0x200A,
-    InvalidObjectFormatCode = 0x200B,
-    StoreFull = 0x200C,
-    ObjectWriteProtected = 0x200D,
-    StoreReadOnly = 0x200E,
-    AccessDenied = 0x200F,
-    NoThumbnailPresent = 0x2010,
-    SelfTestFailed = 0x2011,
-    PartialDeletion = 0x2012,
-    StoreNotAvailable = 0x2013,
-    SpecificationByFormatUnsupported = 0x2014,
-    NoValidObjectInfo = 0x2015,
-    InvalidCodeFormat = 0x2016,
-    UnknownVendorCode = 0x2017,
-    CaptureAlreadyTerminated = 0x2018,
-    DeviceBusy = 0x2019,
-    InvalidParentObject = 0x201A,
-    InvalidDevicePropFormat = 0x201B,
-    InvalidDevicePropValue = 0x201C,
-    InvalidParameter = 0x201D,
-    SessionAlreadyOpen = 0x201E,
-    TransactionCancelled = 0x201F,
-    SpecificationOfDestinationUnsupported = 0x2020,
-}
-
-}
-
-fn response_code_to_string(response: PtpResponseCode) -> &'static str {
-    use ptp::PtpResponseCode::*;
-    match response {
-        Undefined => "Undefined",
-        Ok => "Ok",
-        GeneralError => "GeneralError",
-        SessionNotOpen => "SessionNotOpen",
-        InvalidTransactionId => "InvalidTransactionId",
-        OperationNotSupported => "OperationNotSupported",
-        ParameterNotSupported => "ParameterNotSupported",
-        IncompleteTransfer => "IncompleteTransfer",
-        InvalidStorageId => "InvalidStorageId",
-        InvalidObjectHandle => "InvalidObjectHandle",
-        DevicePropNotSupported => "DevicePropNotSupported",
-        InvalidObjectFormatCode => "InvalidObjectFormatCode",
-        StoreFull => "StoreFull",
-        ObjectWriteProtected => "ObjectWriteProtected",
-        StoreReadOnly => "StoreReadOnly",
-        AccessDenied => "AccessDenied",
-        NoThumbnailPresent => "NoThumbnailPresent",
-        SelfTestFailed => "SelfTestFailed",
-        PartialDeletion => "PartialDeletion",
-        StoreNotAvailable => "StoreNotAvailable",
-        SpecificationByFormatUnsupported => "SpecificationByFormatUnsupported",
-        NoValidObjectInfo => "NoValidObjectInfo",
-        InvalidCodeFormat => "InvalidCodeFormat",
-        UnknownVendorCode => "UnknownVendorCode",
-        CaptureAlreadyTerminated => "CaptureAlreadyTerminated",
-        DeviceBusy => "DeviceBusy",
-        InvalidParentObject => "InvalidParentObject",
-        InvalidDevicePropFormat => "InvalidDevicePropFormat",
-        InvalidDevicePropValue => "InvalidDevicePropValue",
-        InvalidParameter => "InvalidParameter",
-        SessionAlreadyOpen => "SessionAlreadyOpen",
-        TransactionCancelled => "TransactionCancelled",
-        SpecificationOfDestinationUnsupported => "SpecificationOfDestinationUnsupported",
-    }
-}
-
-enum_from_primitive! {
-
-#[derive(PartialEq, Clone, Copy, Debug)]
-#[repr(u16)]
-pub enum StandardCommandCode {
-    Undefined = 0x1000,
-    GetDeviceInfo = 0x1001,
-    OpenSession = 0x1002,
-    CloseSession = 0x1003,
-    GetStorageIDs = 0x1004,
-    GetStorageInfo = 0x1005,
-    GetNumObjects = 0x1006,
-    GetObjectHandles = 0x1007,
-    GetObjectInfo = 0x1008,
-    GetObject = 0x1009,
-    GetThumb = 0x100A,
-    DeleteObject = 0x100B,
-    SendObjectInfo = 0x100C,
-    SendObject = 0x100D,
-    InitiateCapture = 0x100E,
-    FormatStore = 0x100F,
-    ResetDevice = 0x1010,
-    SelfTest = 0x1011,
-    SetObjectProtection = 0x1012,
-    PowerDown = 0x1013,
-    GetDevicePropDesc = 0x1014,
-    GetDevicePropValue = 0x1015,
-    SetDevicePropValue = 0x1016,
-    ResetDevicePropValue = 0x1017,
-    TerminateOpenCapture = 0x1018,
-    MoveObject = 0x1019,
-    CopyObject = 0x101A,
-    GetPartialObject = 0x101B,
-    InitiateOpenCapture = 0x101C
-}
-
-}
-
-
-pub trait PtpCommandCode: Sized + Copy {
-    fn repr(&self) -> u16 {
-        unsafe {
-            let a: &StandardCommandCode = ::std::mem::transmute(self);
-            *a as u16
-        }
-    }
-
-    fn enum_name(&self) -> String;
-}
-
-impl PtpCommandCode for StandardCommandCode {
-    fn enum_name(&self) -> String {
-        use ::self::StandardCommandCode::*;
-        match *self {
-            Undefined => "Undefined".to_string(), 
-            GetDeviceInfo => "GetDeviceInfo".to_string(), 
-            OpenSession => "OpenSession".to_string(), 
-            CloseSession => "CloseSession".to_string(), 
-            GetStorageIDs => "GetStorageIDs".to_string(), 
-            GetStorageInfo => "GetStorageInfo".to_string(), 
-            GetNumObjects => "GetNumObjects".to_string(), 
-            GetObjectHandles => "GetObjectHandles".to_string(), 
-            GetObjectInfo => "GetObjectInfo".to_string(), 
-            GetObject => "GetObject".to_string(), 
-            GetThumb => "GetThumb".to_string(), 
-            DeleteObject => "DeleteObject".to_string(), 
-            SendObjectInfo => "SendObjectInfo".to_string(), 
-            SendObject => "SendObject".to_string(), 
-            InitiateCapture => "InitiateCapture".to_string(), 
-            FormatStore => "FormatStore".to_string(), 
-            ResetDevice => "ResetDevice".to_string(), 
-            SelfTest => "SelfTest".to_string(), 
-            SetObjectProtection => "SetObjectProtection".to_string(), 
-            PowerDown => "PowerDown".to_string(), 
-            GetDevicePropDesc => "GetDevicePropDesc".to_string(), 
-            GetDevicePropValue => "GetDevicePropValue".to_string(), 
-            SetDevicePropValue => "SetDevicePropValue".to_string(), 
-            ResetDevicePropValue => "ResetDevicePropValue".to_string(), 
-            TerminateOpenCapture => "TerminateOpenCapture".to_string(), 
-            MoveObject => "MoveObject".to_string(), 
-            CopyObject => "CopyObject".to_string(), 
-            GetPartialObject => "GetPartialObject".to_string(), 
-            InitiateOpenCapture => "InitiateOpenCapture".to_string(),
+#[allow(non_upper_case_globals)]
+pub mod StandardResponseCode {
+    pub type Value = super::ResponseCode;
+    
+    pub const Undefined: Value = 0x2000;
+    pub const Ok: Value = 0x2001;
+    pub const GeneralError: Value = 0x2002;
+    pub const SessionNotOpen: Value = 0x2003;
+    pub const InvalidTransactionId: Value = 0x2004;
+    pub const OperationNotSupported: Value = 0x2005;
+    pub const ParameterNotSupported: Value = 0x2006;
+    pub const IncompleteTransfer: Value = 0x2007;
+    pub const InvalidStorageId: Value = 0x2008;
+    pub const InvalidObjectHandle: Value = 0x2009;
+    pub const DevicePropNotSupported: Value = 0x200A;
+    pub const InvalidObjectFormatCode: Value = 0x200B;
+    pub const StoreFull: Value = 0x200C;
+    pub const ObjectWriteProtected: Value = 0x200D;
+    pub const StoreReadOnly: Value = 0x200E;
+    pub const AccessDenied: Value = 0x200F;
+    pub const NoThumbnailPresent: Value = 0x2010;
+    pub const SelfTestFailed: Value = 0x2011;
+    pub const PartialDeletion: Value = 0x2012;
+    pub const StoreNotAvailable: Value = 0x2013;
+    pub const SpecificationByFormatUnsupported: Value = 0x2014;
+    pub const NoValidObjectInfo: Value = 0x2015;
+    pub const InvalidCodeFormat: Value = 0x2016;
+    pub const UnknownVendorCode: Value = 0x2017;
+    pub const CaptureAlreadyTerminated: Value = 0x2018;
+    pub const DeviceBusy: Value = 0x2019;
+    pub const InvalidParentObject: Value = 0x201A;
+    pub const InvalidDevicePropFormat: Value = 0x201B;
+    pub const InvalidDevicePropValue: Value = 0x201C;
+    pub const InvalidParameter: Value = 0x201D;
+    pub const SessionAlreadyOpen: Value = 0x201E;
+    pub const TransactionCancelled: Value = 0x201F;
+    pub const SpecificationOfDestinationUnsupported: Value = 0x2020;
+    
+    pub fn name(v: Value) -> Option<&'static str> {
+        match v {
+            Undefined => Some("Undefined"),
+            Ok => Some("Ok"),
+            GeneralError => Some("GeneralError"),
+            SessionNotOpen => Some("SessionNotOpen"),
+            InvalidTransactionId => Some("InvalidTransactionId"),
+            OperationNotSupported => Some("OperationNotSupported"),
+            ParameterNotSupported => Some("ParameterNotSupported"),
+            IncompleteTransfer => Some("IncompleteTransfer"),
+            InvalidStorageId => Some("InvalidStorageId"),
+            InvalidObjectHandle => Some("InvalidObjectHandle"),
+            DevicePropNotSupported => Some("DevicePropNotSupported"),
+            InvalidObjectFormatCode => Some("InvalidObjectFormatCode"),
+            StoreFull => Some("StoreFull"),
+            ObjectWriteProtected => Some("ObjectWriteProtected"),
+            StoreReadOnly => Some("StoreReadOnly"),
+            AccessDenied => Some("AccessDenied"),
+            NoThumbnailPresent => Some("NoThumbnailPresent"),
+            SelfTestFailed => Some("SelfTestFailed"),
+            PartialDeletion => Some("PartialDeletion"),
+            StoreNotAvailable => Some("StoreNotAvailable"),
+            SpecificationByFormatUnsupported => Some("SpecificationByFormatUnsupported"),
+            NoValidObjectInfo => Some("NoValidObjectInfo"),
+            InvalidCodeFormat => Some("InvalidCodeFormat"),
+            UnknownVendorCode => Some("UnknownVendorCode"),
+            CaptureAlreadyTerminated => Some("CaptureAlreadyTerminated"),
+            DeviceBusy => Some("DeviceBusy"),
+            InvalidParentObject => Some("InvalidParentObject"),
+            InvalidDevicePropFormat => Some("InvalidDevicePropFormat"),
+            InvalidDevicePropValue => Some("InvalidDevicePropValue"),
+            InvalidParameter => Some("InvalidParameter"),
+            SessionAlreadyOpen => Some("SessionAlreadyOpen"),
+            TransactionCancelled => Some("TransactionCancelled"),
+            SpecificationOfDestinationUnsupported => Some("SpecificationOfDestinationUnsupported"),
+            _ => None,
         }
     }
 }
 
+pub type CommandCode = u16;
 
-
+#[allow(non_upper_case_globals)]
+pub mod StandardCommandCode {
+    pub type Value = super::CommandCode;
+    
+    pub const Undefined: Value = 0x1000;
+    pub const GetDeviceInfo: Value = 0x1001;
+    pub const OpenSession: Value = 0x1002;
+    pub const CloseSession: Value = 0x1003;
+    pub const GetStorageIDs: Value = 0x1004;
+    pub const GetStorageInfo: Value = 0x1005;
+    pub const GetNumObjects: Value = 0x1006;
+    pub const GetObjectHandles: Value = 0x1007;
+    pub const GetObjectInfo: Value = 0x1008;
+    pub const GetObject: Value = 0x1009;
+    pub const GetThumb: Value = 0x100A;
+    pub const DeleteObject: Value = 0x100B;
+    pub const SendObjectInfo: Value = 0x100C;
+    pub const SendObject: Value = 0x100D;
+    pub const InitiateCapture: Value = 0x100E;
+    pub const FormatStore: Value = 0x100F;
+    pub const ResetDevice: Value = 0x1010;
+    pub const SelfTest: Value = 0x1011;
+    pub const SetObjectProtection: Value = 0x1012;
+    pub const PowerDown: Value = 0x1013;
+    pub const GetDevicePropDesc: Value = 0x1014;
+    pub const GetDevicePropValue: Value = 0x1015;
+    pub const SetDevicePropValue: Value = 0x1016;
+    pub const ResetDevicePropValue: Value = 0x1017;
+    pub const TerminateOpenCapture: Value = 0x1018;
+    pub const MoveObject: Value = 0x1019;
+    pub const CopyObject: Value = 0x101A;
+    pub const GetPartialObject: Value = 0x101B;
+    pub const InitiateOpenCapture: Value = 0x101C;
+    
+    pub fn name(v: Value) -> Option<&'static str> {
+        match v {
+            Undefined => Some("Undefined"),
+            GetDeviceInfo => Some("GetDeviceInfo"),
+            OpenSession => Some("OpenSession"),
+            CloseSession => Some("CloseSession"),
+            GetStorageIDs => Some("GetStorageIDs"),
+            GetStorageInfo => Some("GetStorageInfo"),
+            GetNumObjects => Some("GetNumObjects"),
+            GetObjectHandles => Some("GetObjectHandles"),
+            GetObjectInfo => Some("GetObjectInfo"),
+            GetObject => Some("GetObject"),
+            GetThumb => Some("GetThumb"),
+            DeleteObject => Some("DeleteObject"),
+            SendObjectInfo => Some("SendObjectInfo"),
+            SendObject => Some("SendObject"),
+            InitiateCapture => Some("InitiateCapture"),
+            FormatStore => Some("FormatStore"),
+            ResetDevice => Some("ResetDevice"),
+            SelfTest => Some("SelfTest"),
+            SetObjectProtection => Some("SetObjectProtection"),
+            PowerDown => Some("PowerDown"),
+            GetDevicePropDesc => Some("GetDevicePropDesc"),
+            GetDevicePropValue => Some("GetDevicePropValue"),
+            SetDevicePropValue => Some("SetDevicePropValue"),
+            ResetDevicePropValue => Some("ResetDevicePropValue"),
+            TerminateOpenCapture => Some("TerminateOpenCapture"),
+            MoveObject => Some("MoveObject"),
+            CopyObject => Some("CopyObject"),
+            GetPartialObject => Some("GetPartialObject"),
+            InitiateOpenCapture => Some("InitiateOpenCapture"),
+            _ => None,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct PtpTransaction {
@@ -762,21 +743,21 @@ impl PtpTransaction {
     }
 }
 
-pub fn ptp_gen_message<T: PtpCommandCode>(w: &mut Write,
+pub fn ptp_gen_message(w: &mut Write,
                                           kind: PtpContainerType,
-                                          code: T,
+                                          code: CommandCode,
                                           tid: u32,
                                           payload: &[u8]) {
     let len: u32 = 12 + payload.len() as u32;
 
     w.write_u32::<LittleEndian>(len).ok();
     w.write_u16::<LittleEndian>(kind as u16).ok();
-    w.write_u16::<LittleEndian>(code.repr()).ok();
+    w.write_u16::<LittleEndian>(code).ok();
     w.write_u32::<LittleEndian>(tid).ok();
     w.write_all(payload).ok();
 }
 
-pub fn ptp_gen_cmd_message<T: PtpCommandCode>(w: &mut Write, code: T, tid: u32, params: &[u32]) {
+pub fn ptp_gen_cmd_message(w: &mut Write, code: CommandCode, tid: u32, params: &[u32]) {
     let mut payload = vec![];
     for p in params {
         payload.write_u32::<LittleEndian>(*p).ok();
@@ -802,8 +783,8 @@ pub struct PtpCamera<'a> {
 }
 
 impl<'a> PtpCamera<'a> {
-    pub fn command<T: PtpCommandCode>(&mut self,
-                                      code: T,
+    pub fn command(&mut self,
+                                      code: CommandCode,
                                       params: &[u32],
                                       data: Option<&[u8]>)
                                       -> io::Result<PtpTransaction> {
@@ -811,7 +792,7 @@ impl<'a> PtpCamera<'a> {
 
         let transaction = PtpTransaction {
             tid: self.current_tid,
-            code: code.repr(),
+            code: code,
             data: vec![], // TODO
         };
 
@@ -823,10 +804,11 @@ impl<'a> PtpCamera<'a> {
 
         loop {
             let timespec = time::get_time();
-            trace!("Write Cmnd [{}:{:09}] - {}, tid:{}, params:{:?}",
+            trace!("Write Cmnd [{}:{:09}] - {} ({:?}), tid:{}, params:{:?}",
                    timespec.sec,
                    timespec.nsec,
-                   code.enum_name(),
+                   code,
+                   StandardCommandCode::name(code),
                    self.current_tid,
                    params);
             match self.handle.write_bulk(self.ep_out.address, &cmd_message, timeout) {
@@ -847,10 +829,11 @@ impl<'a> PtpCamera<'a> {
                             self.current_tid,
                             data);
             let timespec = time::get_time();
-            trace!("Write Data [{}:{:09}] - {}, tid:{}, len:{}",
+            trace!("Write Data [{}:{:09}] - {} ({:?}), tid:{}, len:{}",
                    timespec.sec,
                    timespec.nsec,
-                   code.enum_name(),
+                   code,
+                   StandardCommandCode::name(code),
                    self.current_tid,
                    data.len());
             self.handle.write_bulk(self.ep_out.address, &data_message, timeout).ok();
@@ -919,10 +902,7 @@ impl<'a> PtpCamera<'a> {
     pub fn get_objectinfo(&mut self, handle: u32) -> PtpObjectInfo {
         let res = self.command(StandardCommandCode::GetObjectInfo, &vec![handle], None)
             .expect("Command GetObjectInfo failed.");
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
-                             res.code));
-        assert_eq!(code, PtpResponseCode::Ok);
+        assert_eq!(res.code, StandardResponseCode::Ok);
 
         PtpObjectInfo::decode(&res.data).unwrap()
     }
@@ -932,14 +912,11 @@ impl<'a> PtpCamera<'a> {
         loop {
             let res = self.command(StandardCommandCode::GetObject, &vec![handle], None)
                 .expect("Command GetObjectInfo failed.");
-            let code = res.code::<PtpResponseCode>()
-                .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
-                                 res.code));
 
-            if code == PtpResponseCode::AccessDenied {
+            if res.code == StandardResponseCode::AccessDenied {
                 continue;
             }
-            assert_eq!(code, PtpResponseCode::Ok);
+            assert_eq!(res.code, StandardResponseCode::Ok);
             return res.data;
         }
     }
@@ -952,9 +929,8 @@ impl<'a> PtpCamera<'a> {
         let res = try!(self.command(StandardCommandCode::GetObjectHandles,
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
                                     None));
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Unexpected response code {:?}", res.code));
-        if code != PtpResponseCode::Ok {
+
+        if res.code != StandardResponseCode::Ok {
             return Err(io::Error::new(io::ErrorKind::PermissionDenied,
                                       format!("Unexpected response code {:?}", res.code)));
         }
@@ -991,9 +967,8 @@ impl<'a> PtpCamera<'a> {
         let res = try!(self.command(StandardCommandCode::GetNumObjects,
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
                                     None));
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Unexpected response code {:?}", res.code));
-        if code != PtpResponseCode::Ok {
+
+        if res.code != StandardResponseCode::Ok {
             return Err(io::Error::new(io::ErrorKind::PermissionDenied,
                                       "Unexpected response code {:?}"));
         }
@@ -1009,9 +984,7 @@ impl<'a> PtpCamera<'a> {
 
     pub fn get_storage_info(&mut self, storage_id: u32) -> io::Result<PtpStorageInfo> {
         let res = try!(self.command(StandardCommandCode::GetStorageInfo, &[storage_id], None));
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Unexpected response code {:?}", res.code));
-        if code != PtpResponseCode::Ok {
+        if res.code != StandardResponseCode::Ok {
             return Err(io::Error::new(io::ErrorKind::PermissionDenied,
                                       "Unexpected response code {:?}"));
         }
@@ -1027,9 +1000,8 @@ impl<'a> PtpCamera<'a> {
 
     pub fn get_storageids(&mut self) -> io::Result<Vec<u32>> {
         let res = try!(self.command(StandardCommandCode::GetStorageIDs, &[], None));
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Unexpected response code {:?}", res.code));
-        if code != PtpResponseCode::Ok {
+
+        if res.code != StandardResponseCode::Ok {
             return Err(io::Error::new(io::ErrorKind::PermissionDenied,
                                       "Unexpected response code {:?}"));
         }
@@ -1057,10 +1029,8 @@ impl<'a> PtpCamera<'a> {
     pub fn get_device_info(&mut self) -> io::Result<PtpDeviceInfo> {
         let res = self.command(StandardCommandCode::GetDeviceInfo, &vec![0, 0, 0], None)
             .expect("GetDeviceInfo failed.");
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
-                             res.code));
-        assert_eq!(code, PtpResponseCode::Ok);
+
+        assert_eq!(res.code, StandardResponseCode::Ok);
 
         let device_info = PtpDeviceInfo::decode(&res.data);
         debug!("device_info {:?}", device_info);
@@ -1074,22 +1044,16 @@ impl<'a> PtpCamera<'a> {
                      &vec![session_id, 0, 0],
                      None)
             .expect("OpenSession failed.");
-        let code = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
-                             res.code));
 
-        assert_eq!(code, PtpResponseCode::Ok);
+        assert_eq!(res.code, StandardResponseCode::Ok);
     }
 
     pub fn close_session(&mut self) {
         let res = self.command(StandardCommandCode::CloseSession, &vec![], None)
             .expect("CloseSession failed.");
-        let response = res.code::<PtpResponseCode>()
-            .expect(&format!("Response code {:x} was not a valid Ptp Response code.",
-                             res.code));
 
         // assert_eq!(code, PtpResponseCode::Ok);
-        debug!("Close session returned code: {:?}", response_code_to_string(response));
+        debug!("Close session returned code: {:?}", StandardResponseCode::name(res.code));
     }
 }
 

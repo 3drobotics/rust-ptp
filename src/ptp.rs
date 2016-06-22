@@ -188,6 +188,9 @@ pub enum Error {
     /// Device has been disconnected
     NoDevice,
     
+    /// Data received was malformed
+    Malformed(String),
+    
     /// Another libusb error
     Usb(libusb::Error),
     
@@ -203,6 +206,7 @@ impl fmt::Display for Error {
             Error::NoDevice => write!(f, "Device disconnected"),
             Error::Usb(ref e) => write!(f, "USB error: {}", e),
             Error::Io(ref e) => write!(f, "IO error: {}", e),
+            Error::Malformed(ref e) => write!(f, "{}", e),
         }
     }
 }
@@ -213,6 +217,7 @@ impl ::std::error::Error for Error {
             Error::Response(r) => StandardResponseCode::name(r).unwrap_or("<vendor-defined code>"),
             Error::Timeout => "timeout",
             Error::NoDevice => "disconnected",
+            Error::Malformed(ref m) => m,
             Error::Usb(ref e) => e.description(),
             Error::Io(ref e) => e.description(),
         }
@@ -239,108 +244,107 @@ impl From<libusb::Error> for Error {
 
 impl From<io::Error> for Error {
     fn from(e: io::Error) -> Error {
-        Error::Io(e)
+        match e.kind() {
+            io::ErrorKind::UnexpectedEof => Error::Malformed(format!("Unexpected end of message")),
+            _ => Error::Io(e),
+        }
     }
 }
 
 pub trait PtpRead: ReadBytesExt {
-    fn read_ptp_u8(&mut self) -> io::Result<u8> {
+    fn read_ptp_u8(&mut self) -> Result<u8, Error> {
         Ok(try!(self.read_u8()))
     }
 
-    fn read_ptp_i8(&mut self) -> io::Result<i8> {
+    fn read_ptp_i8(&mut self) -> Result<i8, Error> {
         Ok(try!(self.read_i8()))
     }
 
-    fn read_ptp_u16(&mut self) -> io::Result<u16> {
+    fn read_ptp_u16(&mut self) -> Result<u16, Error> {
         Ok(try!(self.read_u16::<LittleEndian>()))
     }
 
-    fn read_ptp_i16(&mut self) -> io::Result<i16> {
+    fn read_ptp_i16(&mut self) -> Result<i16, Error> {
         Ok(try!(self.read_i16::<LittleEndian>()))
     }
 
-    fn read_ptp_u32(&mut self) -> io::Result<u32> {
+    fn read_ptp_u32(&mut self) -> Result<u32, Error> {
         Ok(try!(self.read_u32::<LittleEndian>()))
     }
 
-    fn read_ptp_i32(&mut self) -> io::Result<i32> {
+    fn read_ptp_i32(&mut self) -> Result<i32, Error> {
         Ok(try!(self.read_i32::<LittleEndian>()))
     }
 
-    fn read_ptp_u64(&mut self) -> io::Result<u64> {
+    fn read_ptp_u64(&mut self) -> Result<u64, Error> {
         Ok(try!(self.read_u64::<LittleEndian>()))
     }
 
-    fn read_ptp_i64(&mut self) -> io::Result<i64> {
+    fn read_ptp_i64(&mut self) -> Result<i64, Error> {
         Ok(try!(self.read_i64::<LittleEndian>()))
     }
 
-    fn read_ptp_u128(&mut self) -> io::Result<(u64, u64)> {
+    fn read_ptp_u128(&mut self) -> Result<(u64, u64), Error> {
         let hi = try!(self.read_u64::<LittleEndian>());
         let lo = try!(self.read_u64::<LittleEndian>());
         Ok((lo, hi))
     }
 
-    fn read_ptp_i128(&mut self) -> io::Result<(u64, u64)> {
+    fn read_ptp_i128(&mut self) -> Result<(u64, u64), Error> {
         let hi = try!(self.read_u64::<LittleEndian>());
         let lo = try!(self.read_u64::<LittleEndian>());
         Ok((lo, hi))
     }
 
     #[inline(always)]
-    fn read_ptp_vec<T: Sized, U: Fn(&mut Self) -> io::Result<T>>(&mut self,
+    fn read_ptp_vec<T: Sized, U: Fn(&mut Self) -> Result<T, Error>>(&mut self,
                                                                  func: U)
-                                                                 -> io::Result<Vec<T>> {
+                                                                 -> Result<Vec<T>, Error> {
         let len = try!(self.read_u32::<LittleEndian>()) as usize;
-        let mut res = vec![];
-        for _ in 0..len {
-            res.push(try!(func(self)));
-        }
-        Ok(res)
+        (0..len).map(|_| func(self)).collect()
     }
 
-    fn read_ptp_u8_vec(&mut self) -> io::Result<Vec<u8>> {
+    fn read_ptp_u8_vec(&mut self) -> Result<Vec<u8>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_u8())
     }
 
-    fn read_ptp_i8_vec(&mut self) -> io::Result<Vec<i8>> {
+    fn read_ptp_i8_vec(&mut self) -> Result<Vec<i8>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_i8())
     }
 
-    fn read_ptp_u16_vec(&mut self) -> io::Result<Vec<u16>> {
+    fn read_ptp_u16_vec(&mut self) -> Result<Vec<u16>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_u16())
     }
 
-    fn read_ptp_i16_vec(&mut self) -> io::Result<Vec<i16>> {
+    fn read_ptp_i16_vec(&mut self) -> Result<Vec<i16>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_i16())
     }
 
-    fn read_ptp_u32_vec(&mut self) -> io::Result<Vec<u32>> {
+    fn read_ptp_u32_vec(&mut self) -> Result<Vec<u32>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_u32())
     }
 
-    fn read_ptp_i32_vec(&mut self) -> io::Result<Vec<i32>> {
+    fn read_ptp_i32_vec(&mut self) -> Result<Vec<i32>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_i32())
     }
 
-    fn read_ptp_u64_vec(&mut self) -> io::Result<Vec<u64>> {
+    fn read_ptp_u64_vec(&mut self) -> Result<Vec<u64>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_u64())
     }
 
-    fn read_ptp_i64_vec(&mut self) -> io::Result<Vec<i64>> {
+    fn read_ptp_i64_vec(&mut self) -> Result<Vec<i64>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_i64())
     }
 
-    fn read_ptp_u128_vec(&mut self) -> io::Result<Vec<(u64, u64)>> {
+    fn read_ptp_u128_vec(&mut self) -> Result<Vec<(u64, u64)>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_u128())
     }
 
-    fn read_ptp_i128_vec(&mut self) -> io::Result<Vec<(u64, u64)>> {
+    fn read_ptp_i128_vec(&mut self) -> Result<Vec<(u64, u64)>, Error> {
         self.read_ptp_vec(|cur| cur.read_ptp_i128())
     }
 
-    fn read_ptp_str(&mut self) -> io::Result<String> {
+    fn read_ptp_str(&mut self) -> Result<String, Error> {
         let len = try!(self.read_u8()) as usize;
         if len > 0 {
             let mut data = vec![];
@@ -349,15 +353,26 @@ pub trait PtpRead: ReadBytesExt {
             }
             try!(self.read_u8());
             try!(self.read_u8());
-            return UTF_16LE.decode(&data, DecoderTrap::Ignore)
-                .or(Err(io::Error::new(io::ErrorKind::InvalidData,
-                                   format!("Invalid UTF16 data: {:?}", data))));
+            UTF_16LE.decode(&data, DecoderTrap::Ignore)
+                .map_err(|_| Error::Malformed(format!("Invalid UTF16 data: {:?}", data)))
+        } else {
+            Ok("".into())
         }
-        Ok("".into())
     }
+    
+    fn expect_end(&mut self) -> Result<(), Error>;
 }
 
-impl<T: AsRef<[u8]>> PtpRead for Cursor<T> {}
+impl<T: AsRef<[u8]>> PtpRead for Cursor<T> {
+    fn expect_end(&mut self) -> Result<(), Error> {
+        let len = self.get_ref().as_ref().len();
+        if len as u64 != self.position() {
+            Err(Error::Malformed(format!("Response {} bytes, expected {} bytes", len, self.position())))
+        } else {
+            Ok(())
+        }
+    }
+}
 
 
 #[allow(non_snake_case)]
@@ -500,7 +515,7 @@ impl PtpDataType {
         out
     }
 
-    pub fn read_type<T: PtpRead>(kind: u16, reader: &mut T) -> io::Result<PtpDataType> {
+    pub fn read_type<T: PtpRead>(kind: u16, reader: &mut T) -> Result<PtpDataType, Error> {
         use ptp::PtpDataType::*;
         Ok(match kind {
             // 0x0000 => UNDEF,
@@ -593,7 +608,7 @@ pub struct PtpDeviceInfo {
 }
 
 impl PtpDeviceInfo {
-    pub fn decode(buf: &[u8]) -> io::Result<PtpDeviceInfo> {
+    pub fn decode(buf: &[u8]) -> Result<PtpDeviceInfo, Error> {
         let mut cur = Cursor::new(buf);
 
         Ok(PtpDeviceInfo {
@@ -640,7 +655,7 @@ pub struct PtpObjectInfo {
 }
 
 impl PtpObjectInfo {
-    pub fn decode(buf: &[u8]) -> io::Result<PtpObjectInfo> {
+    pub fn decode(buf: &[u8]) -> Result<PtpObjectInfo, Error> {
         let mut cur = Cursor::new(buf);
 
         Ok(PtpObjectInfo {
@@ -682,7 +697,7 @@ pub struct PtpStorageInfo {
 }
 
 impl PtpStorageInfo {
-    pub fn decode<T: PtpRead>(cur: &mut T) -> io::Result<PtpStorageInfo> {
+    pub fn decode<T: PtpRead>(cur: &mut T) -> Result<PtpStorageInfo, Error> {
         Ok(PtpStorageInfo {
             StorageType: try!(cur.read_ptp_u16()),
             FilesystemType: try!(cur.read_ptp_u16()),
@@ -725,7 +740,7 @@ pub struct PtpPropInfo {
 }
 
 impl PtpPropInfo {
-    pub fn decode<T: PtpRead>(cur: &mut T) -> io::Result<PtpPropInfo> {
+    pub fn decode<T: PtpRead>(cur: &mut T) -> Result<PtpPropInfo, Error> {
         let data_type;
         Ok(PtpPropInfo {
             PropertyCode: try!(cur.read_u16::<LittleEndian>()),
@@ -774,15 +789,14 @@ pub struct PtpTransaction {
 }
 
 impl PtpTransaction {
-    pub fn parse(buf: &[u8]) -> io::Result<(PtpContainerType, PtpTransaction)> {
+    pub fn parse(buf: &[u8]) -> Result<(PtpContainerType, PtpTransaction), Error> {
         let mut cur = Cursor::new(buf);
 
         let len = try!(cur.read_u32::<LittleEndian>());
 
         let msgtype = try!(cur.read_u16::<LittleEndian>());
         let mtype = try!(FromPrimitive::from_u16(msgtype)
-            .ok_or(io::Error::new(io::ErrorKind::InvalidData,
-                              format!("Invalid message type {:x}.", msgtype))));
+            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", msgtype))));
         let code = try!(cur.read_u16::<LittleEndian>());
         let tid = try!(cur.read_u32::<LittleEndian>());
 
@@ -975,11 +989,10 @@ impl<'a> PtpCamera<'a> {
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
                                     None));
         // Parse ObjectHandleArrray
-        let data_len = data.len();
         let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32_vec());
-        assert_eq!(cur.position() as usize, data_len);
-
+        try!(cur.expect_end());
+        
         Ok(value)
     }
 
@@ -1008,10 +1021,9 @@ impl<'a> PtpCamera<'a> {
                                     None));
 
         // Parse ObjectHandleArrray
-        let data_len = data.len();
         let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32());
-        assert_eq!(cur.position() as usize, data_len);
+        try!(cur.expect_end());
 
         Ok(value)
     }
@@ -1020,10 +1032,9 @@ impl<'a> PtpCamera<'a> {
         let data = try!(self.command(StandardCommandCode::GetStorageInfo, &[storage_id], None));
 
         // Parse ObjectHandleArrray
-        let data_len = data.len();
         let mut cur = Cursor::new(data);
         let res = try!(PtpStorageInfo::decode(&mut cur));
-        assert_eq!(cur.position() as usize, data_len);
+        try!(cur.expect_end());
 
         Ok(res)
     }
@@ -1032,10 +1043,9 @@ impl<'a> PtpCamera<'a> {
         let data = try!(self.command(StandardCommandCode::GetStorageIDs, &[], None));
 
         // Parse ObjectHandleArrray
-        let data_len = data.len();
         let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32_vec());
-        assert_eq!(cur.position() as usize, data_len);
+        try!(cur.expect_end());
 
         Ok(value)
     }

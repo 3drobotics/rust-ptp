@@ -9,7 +9,7 @@ repository = "https://github.com/dronekit/rust-ptp"
 
 [dependencies]
 libusb = "0.2.2"
-byteorder = "0.4.2"
+byteorder = "0.5.3"
 num = "0.1.30"
 enum_primitive = "0.1.0"
 encoding = "0.2.32"

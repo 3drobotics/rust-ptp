@@ -10,6 +10,5 @@ repository = "https://github.com/dronekit/rust-ptp"
 [dependencies]
 libusb = "0.2.2"
 byteorder = "0.5.3"
-encoding = "0.2.32"
 log = "0.3"
 time = "0.1"

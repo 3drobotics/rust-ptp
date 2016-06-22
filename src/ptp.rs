@@ -1,6 +1,4 @@
 use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian, ByteOrder};
-use encoding::all::UTF_16LE;
-use encoding::{Encoding, DecoderTrap, EncoderTrap};
 use libusb;
 use std::io::prelude::*;
 use std::io::Cursor;
@@ -352,16 +350,11 @@ pub trait PtpRead: ReadBytesExt {
     }
 
     fn read_ptp_str(&mut self) -> Result<String, Error> {
-        let len = try!(self.read_u8()) as usize;
+        let len = try!(self.read_u8());
         if len > 0 {
-            let mut data = vec![];
-            for _ in 0..(len - 1) * 2 {
-                data.push(try!(self.read_u8()));
-            }
-            try!(self.read_u8());
-            try!(self.read_u8());
-            UTF_16LE.decode(&data, DecoderTrap::Ignore)
-                .map_err(|_| Error::Malformed(format!("Invalid UTF16 data: {:?}", data)))
+            let data: Vec<u16> = try!((0..(len - 1)).map(|_| self.read_u16::<LittleEndian>()).collect());
+            try!(self.read_u16::<LittleEndian>());
+            String::from_utf16(&data).map_err(|_| Error::Malformed(format!("Invalid UTF16 data: {:?}", data)))
         } else {
             Ok("".into())
         }
@@ -512,8 +505,7 @@ impl PtpDataType {
             &STR(ref val) => {
                 out.write_u8(((val.len() as u8) * 2) + 1).ok();
                 if val.len() > 0 {
-                    out.write_all(UTF_16LE.encode(&val, EncoderTrap::Ignore).unwrap().as_ref())
-                        .ok();
+                    for e in val.encode_utf16() { out.write_u16::<LittleEndian>(e).ok(); }
                     out.write_all(b"\0\0").ok();
                 }
             }

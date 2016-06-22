@@ -3,7 +3,6 @@
 
 extern crate libusb;
 extern crate byteorder;
-extern crate encoding;
 extern crate time;
 
 pub mod ptp;

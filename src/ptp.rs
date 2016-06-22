@@ -4,8 +4,9 @@ use encoding::{Encoding, DecoderTrap, EncoderTrap};
 use libusb;
 use num::FromPrimitive;
 use std::io::prelude::*;
-use std::io::{Cursor, Error, ErrorKind};
+use std::io::Cursor;
 use std::io;
+use std::fmt;
 use std::time::Duration;
 use time;
 
@@ -175,11 +176,71 @@ pub mod StandardCommandCode {
     }
 }
 
+/// An error in a PTP command
 #[derive(Debug)]
-pub struct PtpTransaction {
-    pub tid: u32,
-    pub code: u16,
-    pub data: Vec<u8>,
+pub enum Error {
+    /// PTP Responder returned a status code other than Ok, either a constant in StandardResponseCode or a vendor-defined code
+    Response(u16),
+    
+    /// Device did not respond within the timeout interval
+    Timeout,
+    
+    /// Device has been disconnected
+    NoDevice,
+    
+    /// Another libusb error
+    Usb(libusb::Error),
+    
+    /// Another IO error
+    Io(io::Error),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Error::Response(r) => write!(f, "{} (0x{:04x})", StandardResponseCode::name(r).unwrap_or("Unknown"), r),
+            Error::Timeout => write!(f, "Operation timed out"),
+            Error::NoDevice => write!(f, "Device disconnected"),
+            Error::Usb(ref e) => write!(f, "USB error: {}", e),
+            Error::Io(ref e) => write!(f, "IO error: {}", e),
+        }
+    }
+}
+
+impl ::std::error::Error for Error {
+    fn description(&self) -> &str {
+        match *self {
+            Error::Response(r) => StandardResponseCode::name(r).unwrap_or("<vendor-defined code>"),
+            Error::Timeout => "timeout",
+            Error::NoDevice => "disconnected",
+            Error::Usb(ref e) => e.description(),
+            Error::Io(ref e) => e.description(),
+        }
+    }
+
+    fn cause(&self) -> Option<&::std::error::Error> {
+        match *self {
+            Error::Usb(ref e) => Some(e),
+            Error::Io(ref e) => Some(e),
+            _ => None,
+        }
+    }
+}
+
+impl From<libusb::Error> for Error {
+    fn from(e: libusb::Error) -> Error {
+        match e {
+            libusb::Error::Timeout => Error::Timeout,
+            libusb::Error::NoDevice => Error::NoDevice,
+            e => Error::Usb(e),
+        }
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Error {
+        Error::Io(e)
+    }
 }
 
 pub trait PtpRead: ReadBytesExt {
@@ -289,7 +350,7 @@ pub trait PtpRead: ReadBytesExt {
             try!(self.read_u8());
             try!(self.read_u8());
             return UTF_16LE.decode(&data, DecoderTrap::Ignore)
-                .or(Err(Error::new(ErrorKind::InvalidData,
+                .or(Err(io::Error::new(io::ErrorKind::InvalidData,
                                    format!("Invalid UTF16 data: {:?}", data))));
         }
         Ok("".into())
@@ -705,6 +766,13 @@ impl PtpPropInfo {
     }
 }
 
+#[derive(Debug)]
+pub struct PtpTransaction {
+    pub tid: u32,
+    pub code: u16,
+    pub data: Vec<u8>,
+}
+
 impl PtpTransaction {
     pub fn parse(buf: &[u8]) -> io::Result<(PtpContainerType, PtpTransaction)> {
         let mut cur = Cursor::new(buf);
@@ -713,7 +781,7 @@ impl PtpTransaction {
 
         let msgtype = try!(cur.read_u16::<LittleEndian>());
         let mtype = try!(FromPrimitive::from_u16(msgtype)
-            .ok_or(Error::new(ErrorKind::InvalidData,
+            .ok_or(io::Error::new(io::ErrorKind::InvalidData,
                               format!("Invalid message type {:x}.", msgtype))));
         let code = try!(cur.read_u16::<LittleEndian>());
         let tid = try!(cur.read_u32::<LittleEndian>());
@@ -784,12 +852,11 @@ pub struct PtpCamera<'a> {
 
 impl<'a> PtpCamera<'a> {
     pub fn command(&mut self,
-                                      code: CommandCode,
-                                      params: &[u32],
-                                      data: Option<&[u8]>)
-                                      -> io::Result<PtpTransaction> {
-        // transaction = PtpTransaction(code, self.current_tid, data, *params)
-
+                   code: CommandCode,
+                   params: &[u32],
+                   data: Option<&[u8]>)
+                   -> Result<Vec<u8>, Error> {
+                                          
         let transaction = PtpTransaction {
             tid: self.current_tid,
             code: code,
@@ -802,24 +869,16 @@ impl<'a> PtpCamera<'a> {
         let mut cmd_message = vec![];
         ptp_gen_cmd_message(&mut cmd_message, code, self.current_tid, params);
 
-        loop {
-            let timespec = time::get_time();
-            trace!("Write Cmnd [{}:{:09}] - {} ({:?}), tid:{}, params:{:?}",
-                   timespec.sec,
-                   timespec.nsec,
-                   code,
-                   StandardCommandCode::name(code),
-                   self.current_tid,
-                   params);
-            match self.handle.write_bulk(self.ep_out.address, &cmd_message, timeout) {
-                Ok(_) => {
-                    break;
-                }
-                err => {
-                    panic!("ERROR in write {:?}", err);
-                }
-            }
-        }
+        let timespec = time::get_time();
+        trace!("Write Cmnd [{}:{:09}] - 0x{:04x} ({}), tid:{}, params:{:?}",
+               timespec.sec,
+               timespec.nsec,
+               code,
+               StandardCommandCode::name(code).unwrap_or("unknown"),
+               self.current_tid,
+               params);
+        
+        try!(self.handle.write_bulk(self.ep_out.address, &cmd_message, timeout));
 
         if let Some(data) = data {
             let mut data_message = vec![];
@@ -829,14 +888,14 @@ impl<'a> PtpCamera<'a> {
                             self.current_tid,
                             data);
             let timespec = time::get_time();
-            trace!("Write Data [{}:{:09}] - {} ({:?}), tid:{}, len:{}",
+            trace!("Write Data [{}:{:09}] - 0x{:04x} ({}), tid:{}, len:{}",
                    timespec.sec,
                    timespec.nsec,
                    code,
-                   StandardCommandCode::name(code),
+                   StandardCommandCode::name(code).unwrap_or("unknown"),
                    self.current_tid,
                    data.len());
-            self.handle.write_bulk(self.ep_out.address, &data_message, timeout).ok();
+            try!(self.handle.write_bulk(self.ep_out.address, &data_message, timeout));
         }
 
         self.current_tid += 1;
@@ -863,26 +922,14 @@ impl<'a> PtpCamera<'a> {
                        timespec.nsec,
                        current_len,
                        remaining_buf.len());
-                match self.handle.read_bulk(self.ep_in.address, remaining_buf, timeout) {
-                    Ok(len) => {
-                        unsafe {
-                            self.buf.set_len(current_len + len);
-                        }
-                        // debug!("new buf len [{:?}] into {:?}", self.buf.len(), remaining_buf.len());
-                        if len == remaining_buf.len() {
-                            continue;
-                        }
-                        break;
-                    }
-                    Err(libusb::Error::NotFound) |
-                    Err(libusb::Error::NoDevice) => {
-                        error!("Device not found, exit(40)");
-                        ::std::process::exit(40);
-                    }
-                    err => {
-                        error!("ERROR in read {:?}, exit(41)", err);
-                        ::std::process::exit(41);
-                    }
+                
+                let len = try!(self.handle.read_bulk(self.ep_in.address, remaining_buf, timeout));
+                unsafe {
+                    self.buf.set_len(current_len + len);
+                }
+                // debug!("new buf len [{:?}] into {:?}", self.buf.len(), remaining_buf.len());
+                if len < remaining_buf.len() {
+                    break;
                 }
             }
 
@@ -894,30 +941,28 @@ impl<'a> PtpCamera<'a> {
                 if let Some(data) = data {
                     msg.data = data;
                 }
-                return Ok(msg);
+                
+                if msg.code != StandardResponseCode::Ok {
+                    return Err(Error::Response(msg.code));
+                }
+                
+                return Ok(msg.data);
             }
         }
     }
 
-    pub fn get_objectinfo(&mut self, handle: u32) -> PtpObjectInfo {
-        let res = self.command(StandardCommandCode::GetObjectInfo, &vec![handle], None)
-            .expect("Command GetObjectInfo failed.");
-        assert_eq!(res.code, StandardResponseCode::Ok);
-
-        PtpObjectInfo::decode(&res.data).unwrap()
+    pub fn get_objectinfo(&mut self, handle: u32) -> Result<PtpObjectInfo, Error> {
+        let data = try!(self.command(StandardCommandCode::GetObjectInfo, &vec![handle], None));
+        Ok(try!(PtpObjectInfo::decode(&data)))
     }
 
-    pub fn get_object(&mut self, handle: u32) -> Vec<u8> {
+    pub fn get_object(&mut self, handle: u32) -> Result<Vec<u8>, Error> {
         // TODO why need this loop?
         loop {
-            let res = self.command(StandardCommandCode::GetObject, &vec![handle], None)
-                .expect("Command GetObjectInfo failed.");
-
-            if res.code == StandardResponseCode::AccessDenied {
-                continue;
+            match self.command(StandardCommandCode::GetObject, &vec![handle], None) {
+                Err(Error::Response(StandardResponseCode::AccessDenied)) => continue,
+                r => return r,
             }
-            assert_eq!(res.code, StandardResponseCode::Ok);
-            return res.data;
         }
     }
 
@@ -925,19 +970,13 @@ impl<'a> PtpCamera<'a> {
                              storage_id: u32,
                              handle_id: u32,
                              filter: Option<u32>)
-                             -> io::Result<Vec<u32>> {
-        let res = try!(self.command(StandardCommandCode::GetObjectHandles,
+                             -> Result<Vec<u32>, Error> {
+        let data = try!(self.command(StandardCommandCode::GetObjectHandles,
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
                                     None));
-
-        if res.code != StandardResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
-                                      format!("Unexpected response code {:?}", res.code)));
-        }
-
         // Parse ObjectHandleArrray
-        let data_len = res.data.len();
-        let mut cur = Cursor::new(res.data);
+        let data_len = data.len();
+        let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32_vec());
         assert_eq!(cur.position() as usize, data_len);
 
@@ -947,14 +986,14 @@ impl<'a> PtpCamera<'a> {
     pub fn get_objecthandles_root(&mut self,
                                   storage_id: u32,
                                   filter: Option<u32>)
-                                  -> io::Result<Vec<u32>> {
+                                  -> Result<Vec<u32>, Error> {
         self.get_objecthandles(storage_id, 0xFFFFFFFF, filter)
     }
 
     pub fn get_objecthandles_all(&mut self,
                                  storage_id: u32,
                                  filter: Option<u32>)
-                                 -> io::Result<Vec<u32>> {
+                                 -> Result<Vec<u32>, Error> {
         self.get_objecthandles(storage_id, 0x0, filter)
     }
 
@@ -963,52 +1002,38 @@ impl<'a> PtpCamera<'a> {
                           storage_id: u32,
                           handle_id: u32,
                           filter: Option<u32>)
-                          -> io::Result<u32> {
-        let res = try!(self.command(StandardCommandCode::GetNumObjects,
+                          -> Result<u32, Error> {
+        let data = try!(self.command(StandardCommandCode::GetNumObjects,
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
                                     None));
 
-        if res.code != StandardResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
-                                      "Unexpected response code {:?}"));
-        }
-
         // Parse ObjectHandleArrray
-        let data_len = res.data.len();
-        let mut cur = Cursor::new(res.data);
+        let data_len = data.len();
+        let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32());
         assert_eq!(cur.position() as usize, data_len);
 
         Ok(value)
     }
 
-    pub fn get_storage_info(&mut self, storage_id: u32) -> io::Result<PtpStorageInfo> {
-        let res = try!(self.command(StandardCommandCode::GetStorageInfo, &[storage_id], None));
-        if res.code != StandardResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
-                                      "Unexpected response code {:?}"));
-        }
+    pub fn get_storage_info(&mut self, storage_id: u32) -> Result<PtpStorageInfo, Error> {
+        let data = try!(self.command(StandardCommandCode::GetStorageInfo, &[storage_id], None));
 
         // Parse ObjectHandleArrray
-        let data_len = res.data.len();
-        let mut cur = Cursor::new(res.data);
+        let data_len = data.len();
+        let mut cur = Cursor::new(data);
         let res = try!(PtpStorageInfo::decode(&mut cur));
         assert_eq!(cur.position() as usize, data_len);
 
         Ok(res)
     }
 
-    pub fn get_storageids(&mut self) -> io::Result<Vec<u32>> {
-        let res = try!(self.command(StandardCommandCode::GetStorageIDs, &[], None));
-
-        if res.code != StandardResponseCode::Ok {
-            return Err(io::Error::new(io::ErrorKind::PermissionDenied,
-                                      "Unexpected response code {:?}"));
-        }
+    pub fn get_storageids(&mut self) -> Result<Vec<u32>, Error> {
+        let data = try!(self.command(StandardCommandCode::GetStorageIDs, &[], None));
 
         // Parse ObjectHandleArrray
-        let data_len = res.data.len();
-        let mut cur = Cursor::new(res.data);
+        let data_len = data.len();
+        let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32_vec());
         assert_eq!(cur.position() as usize, data_len);
 
@@ -1018,42 +1043,36 @@ impl<'a> PtpCamera<'a> {
     pub fn get_numobjects_roots(&mut self,
                                 storage_id: u32,
                                 filter: Option<u32>)
-                                -> io::Result<u32> {
+                                -> Result<u32, Error> {
         self.get_numobjects(storage_id, 0xFFFFFFFF, filter)
     }
 
-    pub fn get_numobjects_all(&mut self, storage_id: u32, filter: Option<u32>) -> io::Result<u32> {
+    pub fn get_numobjects_all(&mut self, storage_id: u32, filter: Option<u32>) -> Result<u32, Error> {
         self.get_numobjects(storage_id, 0x0, filter)
     }
 
-    pub fn get_device_info(&mut self) -> io::Result<PtpDeviceInfo> {
-        let res = self.command(StandardCommandCode::GetDeviceInfo, &vec![0, 0, 0], None)
-            .expect("GetDeviceInfo failed.");
+    pub fn get_device_info(&mut self) -> Result<PtpDeviceInfo, Error> {
+        let data = try!(self.command(StandardCommandCode::GetDeviceInfo, &vec![0, 0, 0], None));
 
-        assert_eq!(res.code, StandardResponseCode::Ok);
-
-        let device_info = PtpDeviceInfo::decode(&res.data);
+        let device_info = try!(PtpDeviceInfo::decode(&data));
         debug!("device_info {:?}", device_info);
-        device_info
+        Ok(device_info)
     }
 
-    pub fn open_session(&mut self) {
+    pub fn open_session(&mut self) -> Result<(), Error> {
         let session_id = 3;
 
-        let res = self.command(StandardCommandCode::OpenSession,
+        try!(self.command(StandardCommandCode::OpenSession,
                      &vec![session_id, 0, 0],
-                     None)
-            .expect("OpenSession failed.");
+                     None));
 
-        assert_eq!(res.code, StandardResponseCode::Ok);
+        Ok(())
     }
 
-    pub fn close_session(&mut self) {
-        let res = self.command(StandardCommandCode::CloseSession, &vec![], None)
-            .expect("CloseSession failed.");
-
-        // assert_eq!(code, PtpResponseCode::Ok);
-        debug!("Close session returned code: {:?}", StandardResponseCode::name(res.code));
+    pub fn close_session(&mut self) -> Result<(), Error> {
+        try!(self.command(StandardCommandCode::CloseSession, &vec![], None));
+        
+        Ok(())
     }
 }
 

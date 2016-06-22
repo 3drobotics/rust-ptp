@@ -2,16 +2,12 @@ use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian, ByteOrder};
 use encoding::all::UTF_16LE;
 use encoding::{Encoding, DecoderTrap, EncoderTrap};
 use libusb;
-use num::FromPrimitive;
 use std::io::prelude::*;
 use std::io::Cursor;
 use std::io;
 use std::fmt;
 use std::time::Duration;
 use time;
-
-
-enum_from_primitive! {
 
 #[derive(Debug, PartialEq)]
 #[repr(u16)]
@@ -22,6 +18,17 @@ pub enum PtpContainerType {
     Event = 4,
 }
 
+impl PtpContainerType {
+    fn from_u16(v: u16) -> Option<PtpContainerType> {
+        use self::PtpContainerType::*;
+        match v {
+            1 => Some(Command),
+            2 => Some(Data),
+            3 => Some(Response),
+            4 => Some(Event),
+            _ => None
+        }
+    }
 }
 
 pub type ResponseCode = u16;
@@ -795,7 +802,7 @@ impl PtpTransaction {
         let len = try!(cur.read_u32::<LittleEndian>());
 
         let msgtype = try!(cur.read_u16::<LittleEndian>());
-        let mtype = try!(FromPrimitive::from_u16(msgtype)
+        let mtype = try!(PtpContainerType::from_u16(msgtype)
             .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", msgtype))));
         let code = try!(cur.read_u16::<LittleEndian>());
         let tid = try!(cur.read_u32::<LittleEndian>());
@@ -818,10 +825,6 @@ impl PtpTransaction {
 
     pub fn is_response(&self, target: &PtpTransaction) -> bool {
         self.tid == target.tid
-    }
-
-    pub fn code<T: FromPrimitive>(&self) -> Option<T> {
-        T::from_u16(self.code)
     }
 }
 

@@ -39,43 +39,43 @@ pub type ResponseCode = u16;
 
 #[allow(non_upper_case_globals)]
 pub mod StandardResponseCode {
-    pub type Value = super::ResponseCode;
+    use super::ResponseCode;
     
-    pub const Undefined: Value = 0x2000;
-    pub const Ok: Value = 0x2001;
-    pub const GeneralError: Value = 0x2002;
-    pub const SessionNotOpen: Value = 0x2003;
-    pub const InvalidTransactionId: Value = 0x2004;
-    pub const OperationNotSupported: Value = 0x2005;
-    pub const ParameterNotSupported: Value = 0x2006;
-    pub const IncompleteTransfer: Value = 0x2007;
-    pub const InvalidStorageId: Value = 0x2008;
-    pub const InvalidObjectHandle: Value = 0x2009;
-    pub const DevicePropNotSupported: Value = 0x200A;
-    pub const InvalidObjectFormatCode: Value = 0x200B;
-    pub const StoreFull: Value = 0x200C;
-    pub const ObjectWriteProtected: Value = 0x200D;
-    pub const StoreReadOnly: Value = 0x200E;
-    pub const AccessDenied: Value = 0x200F;
-    pub const NoThumbnailPresent: Value = 0x2010;
-    pub const SelfTestFailed: Value = 0x2011;
-    pub const PartialDeletion: Value = 0x2012;
-    pub const StoreNotAvailable: Value = 0x2013;
-    pub const SpecificationByFormatUnsupported: Value = 0x2014;
-    pub const NoValidObjectInfo: Value = 0x2015;
-    pub const InvalidCodeFormat: Value = 0x2016;
-    pub const UnknownVendorCode: Value = 0x2017;
-    pub const CaptureAlreadyTerminated: Value = 0x2018;
-    pub const DeviceBusy: Value = 0x2019;
-    pub const InvalidParentObject: Value = 0x201A;
-    pub const InvalidDevicePropFormat: Value = 0x201B;
-    pub const InvalidDevicePropValue: Value = 0x201C;
-    pub const InvalidParameter: Value = 0x201D;
-    pub const SessionAlreadyOpen: Value = 0x201E;
-    pub const TransactionCancelled: Value = 0x201F;
-    pub const SpecificationOfDestinationUnsupported: Value = 0x2020;
+    pub const Undefined: ResponseCode = 0x2000;
+    pub const Ok: ResponseCode = 0x2001;
+    pub const GeneralError: ResponseCode = 0x2002;
+    pub const SessionNotOpen: ResponseCode = 0x2003;
+    pub const InvalidTransactionId: ResponseCode = 0x2004;
+    pub const OperationNotSupported: ResponseCode = 0x2005;
+    pub const ParameterNotSupported: ResponseCode = 0x2006;
+    pub const IncompleteTransfer: ResponseCode = 0x2007;
+    pub const InvalidStorageId: ResponseCode = 0x2008;
+    pub const InvalidObjectHandle: ResponseCode = 0x2009;
+    pub const DevicePropNotSupported: ResponseCode = 0x200A;
+    pub const InvalidObjectFormatCode: ResponseCode = 0x200B;
+    pub const StoreFull: ResponseCode = 0x200C;
+    pub const ObjectWriteProtected: ResponseCode = 0x200D;
+    pub const StoreReadOnly: ResponseCode = 0x200E;
+    pub const AccessDenied: ResponseCode = 0x200F;
+    pub const NoThumbnailPresent: ResponseCode = 0x2010;
+    pub const SelfTestFailed: ResponseCode = 0x2011;
+    pub const PartialDeletion: ResponseCode = 0x2012;
+    pub const StoreNotAvailable: ResponseCode = 0x2013;
+    pub const SpecificationByFormatUnsupported: ResponseCode = 0x2014;
+    pub const NoValidObjectInfo: ResponseCode = 0x2015;
+    pub const InvalidCodeFormat: ResponseCode = 0x2016;
+    pub const UnknownVendorCode: ResponseCode = 0x2017;
+    pub const CaptureAlreadyTerminated: ResponseCode = 0x2018;
+    pub const DeviceBusy: ResponseCode = 0x2019;
+    pub const InvalidParentObject: ResponseCode = 0x201A;
+    pub const InvalidDevicePropFormat: ResponseCode = 0x201B;
+    pub const InvalidDevicePropValue: ResponseCode = 0x201C;
+    pub const InvalidParameter: ResponseCode = 0x201D;
+    pub const SessionAlreadyOpen: ResponseCode = 0x201E;
+    pub const TransactionCancelled: ResponseCode = 0x201F;
+    pub const SpecificationOfDestinationUnsupported: ResponseCode = 0x2020;
     
-    pub fn name(v: Value) -> Option<&'static str> {
+    pub fn name(v: ResponseCode) -> Option<&'static str> {
         match v {
             Undefined => Some("Undefined"),
             Ok => Some("Ok"),
@@ -119,39 +119,39 @@ pub type CommandCode = u16;
 
 #[allow(non_upper_case_globals)]
 pub mod StandardCommandCode {
-    pub type Value = super::CommandCode;
+    use super::CommandCode;
     
-    pub const Undefined: Value = 0x1000;
-    pub const GetDeviceInfo: Value = 0x1001;
-    pub const OpenSession: Value = 0x1002;
-    pub const CloseSession: Value = 0x1003;
-    pub const GetStorageIDs: Value = 0x1004;
-    pub const GetStorageInfo: Value = 0x1005;
-    pub const GetNumObjects: Value = 0x1006;
-    pub const GetObjectHandles: Value = 0x1007;
-    pub const GetObjectInfo: Value = 0x1008;
-    pub const GetObject: Value = 0x1009;
-    pub const GetThumb: Value = 0x100A;
-    pub const DeleteObject: Value = 0x100B;
-    pub const SendObjectInfo: Value = 0x100C;
-    pub const SendObject: Value = 0x100D;
-    pub const InitiateCapture: Value = 0x100E;
-    pub const FormatStore: Value = 0x100F;
-    pub const ResetDevice: Value = 0x1010;
-    pub const SelfTest: Value = 0x1011;
-    pub const SetObjectProtection: Value = 0x1012;
-    pub const PowerDown: Value = 0x1013;
-    pub const GetDevicePropDesc: Value = 0x1014;
-    pub const GetDevicePropValue: Value = 0x1015;
-    pub const SetDevicePropValue: Value = 0x1016;
-    pub const ResetDevicePropValue: Value = 0x1017;
-    pub const TerminateOpenCapture: Value = 0x1018;
-    pub const MoveObject: Value = 0x1019;
-    pub const CopyObject: Value = 0x101A;
-    pub const GetPartialObject: Value = 0x101B;
-    pub const InitiateOpenCapture: Value = 0x101C;
+    pub const Undefined: CommandCode = 0x1000;
+    pub const GetDeviceInfo: CommandCode = 0x1001;
+    pub const OpenSession: CommandCode = 0x1002;
+    pub const CloseSession: CommandCode = 0x1003;
+    pub const GetStorageIDs: CommandCode = 0x1004;
+    pub const GetStorageInfo: CommandCode = 0x1005;
+    pub const GetNumObjects: CommandCode = 0x1006;
+    pub const GetObjectHandles: CommandCode = 0x1007;
+    pub const GetObjectInfo: CommandCode = 0x1008;
+    pub const GetObject: CommandCode = 0x1009;
+    pub const GetThumb: CommandCode = 0x100A;
+    pub const DeleteObject: CommandCode = 0x100B;
+    pub const SendObjectInfo: CommandCode = 0x100C;
+    pub const SendObject: CommandCode = 0x100D;
+    pub const InitiateCapture: CommandCode = 0x100E;
+    pub const FormatStore: CommandCode = 0x100F;
+    pub const ResetDevice: CommandCode = 0x1010;
+    pub const SelfTest: CommandCode = 0x1011;
+    pub const SetObjectProtection: CommandCode = 0x1012;
+    pub const PowerDown: CommandCode = 0x1013;
+    pub const GetDevicePropDesc: CommandCode = 0x1014;
+    pub const GetDevicePropValue: CommandCode = 0x1015;
+    pub const SetDevicePropValue: CommandCode = 0x1016;
+    pub const ResetDevicePropValue: CommandCode = 0x1017;
+    pub const TerminateOpenCapture: CommandCode = 0x1018;
+    pub const MoveObject: CommandCode = 0x1019;
+    pub const CopyObject: CommandCode = 0x101A;
+    pub const GetPartialObject: CommandCode = 0x101B;
+    pub const InitiateOpenCapture: CommandCode = 0x101C;
     
-    pub fn name(v: Value) -> Option<&'static str> {
+    pub fn name(v: CommandCode) -> Option<&'static str> {
         match v {
             Undefined => Some("Undefined"),
             GetDeviceInfo => Some("GetDeviceInfo"),

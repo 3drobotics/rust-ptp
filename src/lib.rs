@@ -11,6 +11,7 @@ use std::io::Cursor;
 use std::io;
 use std::fmt;
 use std::time::Duration;
+use std::slice;
 
 #[derive(Debug, PartialEq)]
 #[repr(u16)]
@@ -343,6 +344,7 @@ pub trait PtpRead: ReadBytesExt {
     fn read_ptp_str(&mut self) -> Result<String, Error> {
         let len = try!(self.read_u8());
         if len > 0 {
+            // len includes the trailing null u16
             let data: Vec<u16> = try!((0..(len - 1)).map(|_| self.read_u16::<LittleEndian>()).collect());
             try!(self.read_u16::<LittleEndian>());
             String::from_utf16(&data).map_err(|_| Error::Malformed(format!("Invalid UTF16 data: {:?}", data)))
@@ -947,7 +949,7 @@ impl<'a> PtpCamera<'a> {
                     self.buf.reserve(chunk_size);
                 }
                 let remaining_buf = unsafe {
-                    ::std::slice::from_raw_parts_mut(self.buf.get_unchecked_mut(current_len) as *mut _, chunk_size)
+                    slice::from_raw_parts_mut(self.buf.get_unchecked_mut(current_len) as *mut _, chunk_size)
                 };
                 let timespec = time::get_time();
                 trace!("Read Data  [{}:{:09}] - length:{:?} remaining:{:?}",
@@ -989,13 +991,7 @@ impl<'a> PtpCamera<'a> {
     }
 
     pub fn get_object(&mut self, handle: u32) -> Result<Vec<u8>, Error> {
-        // TODO why need this loop?
-        loop {
-            match self.command(StandardCommandCode::GetObject, &vec![handle], None) {
-                Err(Error::Response(StandardResponseCode::AccessDenied)) => continue,
-                r => return r,
-            }
-        }
+        self.command(StandardCommandCode::GetObject, &vec![handle], None)
     }
 
     pub fn get_objecthandles(&mut self,

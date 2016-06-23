@@ -791,7 +791,7 @@ impl PtpPropInfo {
 }
 
 #[derive(Debug)]
-pub struct PtpTransaction {
+struct PtpTransaction {
     pub tid: u32,
     pub code: u16,
     pub data: Vec<u8>,
@@ -830,11 +830,11 @@ impl PtpTransaction {
     }
 }
 
-pub fn ptp_gen_message(w: &mut Write,
-                                          kind: PtpContainerType,
-                                          code: CommandCode,
-                                          tid: u32,
-                                          payload: &[u8]) {
+fn ptp_gen_message(w: &mut Write,
+                   kind: PtpContainerType,
+                   code: CommandCode,
+                   tid: u32,
+                   payload: &[u8]) {
     let len: u32 = 12 + payload.len() as u32;
 
     w.write_u32::<LittleEndian>(len).ok();
@@ -844,20 +844,12 @@ pub fn ptp_gen_message(w: &mut Write,
     w.write_all(payload).ok();
 }
 
-pub fn ptp_gen_cmd_message(w: &mut Write, code: CommandCode, tid: u32, params: &[u32]) {
+fn ptp_gen_cmd_message(w: &mut Write, code: CommandCode, tid: u32, params: &[u32]) {
     let mut payload = vec![];
     for p in params {
         payload.write_u32::<LittleEndian>(*p).ok();
     }
     ptp_gen_message(w, PtpContainerType::Command, code, tid, &payload);
-}
-
-#[derive(Debug)]
-pub struct EndpointAddress {
-    pub config: u8,
-    pub iface: u8,
-    pub setting: u8,
-    pub address: u8,
 }
 
 pub struct PtpCamera<'a> {

@@ -1,11 +1,11 @@
 [package]
 name = "ptp"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Tim Ryan <tim@3drobotics.com>"]
 description = "Picture Transfer Protocol driver in Rust."
 license = "MIT"
-homepage = "https://github.com/dronekit/rust-ptp"
-repository = "https://github.com/dronekit/rust-ptp"
+homepage = "https://github.com/3drobotics/rust-ptp"
+repository = "https://github.com/3drobotics/rust-ptp"
 
 [dependencies]
 libusb = "0.2.2"

@@ -995,12 +995,12 @@ impl<'a> PtpCamera<'a> {
     }
 
     pub fn get_objectinfo(&mut self, handle: u32) -> Result<PtpObjectInfo, Error> {
-        let data = try!(self.command(StandardCommandCode::GetObjectInfo, &vec![handle], None));
+        let data = try!(self.command(StandardCommandCode::GetObjectInfo, &[handle], None));
         Ok(try!(PtpObjectInfo::decode(&data)))
     }
 
     pub fn get_object(&mut self, handle: u32) -> Result<Vec<u8>, Error> {
-        self.command(StandardCommandCode::GetObject, &vec![handle], None)
+        self.command(StandardCommandCode::GetObject, &[handle], None)
     }
 
     pub fn get_objecthandles(&mut self,
@@ -1085,7 +1085,7 @@ impl<'a> PtpCamera<'a> {
     }
 
     pub fn get_device_info(&mut self) -> Result<PtpDeviceInfo, Error> {
-        let data = try!(self.command(StandardCommandCode::GetDeviceInfo, &vec![0, 0, 0], None));
+        let data = try!(self.command(StandardCommandCode::GetDeviceInfo, &[0, 0, 0], None));
 
         let device_info = try!(PtpDeviceInfo::decode(&data));
         debug!("device_info {:?}", device_info);
@@ -1103,7 +1103,7 @@ impl<'a> PtpCamera<'a> {
     }
 
     pub fn close_session(&mut self) -> Result<(), Error> {
-        try!(self.command(StandardCommandCode::CloseSession, &vec![], None));
+        try!(self.command(StandardCommandCode::CloseSession, &[], None));
         
         Ok(())
     }

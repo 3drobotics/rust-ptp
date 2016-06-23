@@ -537,6 +537,54 @@ impl PtpDataType {
     }
 }
 
+impl<'a> From<i8> for PtpDataType {
+    fn from(value: i8) -> Self {
+        PtpDataType::INT8(value)
+    }
+}
+
+impl<'a> From<u8> for PtpDataType {
+    fn from(value: u8) -> Self {
+        PtpDataType::UINT8(value)
+    }
+}
+
+impl<'a> From<i16> for PtpDataType {
+    fn from(value: i16) -> Self {
+        PtpDataType::INT16(value)
+    }
+}
+
+impl<'a> From<u16> for PtpDataType {
+    fn from(value: u16) -> Self {
+        PtpDataType::UINT16(value)
+    }
+}
+
+impl<'a> From<i32> for PtpDataType {
+    fn from(value: i32) -> Self {
+        PtpDataType::INT32(value)
+    }
+}
+
+impl<'a> From<u32> for PtpDataType {
+    fn from(value: u32) -> Self {
+        PtpDataType::UINT32(value)
+    }
+}
+
+impl<'a> From<i64> for PtpDataType {
+    fn from(value: i64) -> Self {
+        PtpDataType::INT64(value)
+    }
+}
+
+impl<'a> From<u64> for PtpDataType {
+    fn from(value: u64) -> Self {
+        PtpDataType::UINT64(value)
+    }
+}
+
 impl<'a> From<&'a str> for PtpDataType {
     fn from(value: &'a str) -> Self {
         PtpDataType::STR(value.to_owned())
@@ -548,37 +596,6 @@ impl<'a> From<String> for PtpDataType {
         PtpDataType::STR(value)
     }
 }
-
-impl<'a> From<i8> for PtpDataType {
-    fn from(value: i8) -> Self {
-        PtpDataType::INT8(value)
-    }
-}
-
-impl<'a> From<i16> for PtpDataType {
-    fn from(value: i16) -> Self {
-        PtpDataType::INT16(value)
-    }
-}
-
-impl<'a> From<u8> for PtpDataType {
-    fn from(value: u8) -> Self {
-        PtpDataType::UINT8(value)
-    }
-}
-
-impl<'a> From<u16> for PtpDataType {
-    fn from(value: u16) -> Self {
-        PtpDataType::UINT16(value)
-    }
-}
-
-impl<'a> From<u32> for PtpDataType {
-    fn from(value: u32) -> Self {
-        PtpDataType::UINT32(value)
-    }
-}
-
 
 #[allow(non_snake_case)]
 #[derive(Debug)]

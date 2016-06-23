@@ -192,12 +192,6 @@ pub enum Error {
     /// PTP Responder returned a status code other than Ok, either a constant in StandardResponseCode or a vendor-defined code
     Response(u16),
     
-    /// Device did not respond within the timeout interval
-    Timeout,
-    
-    /// Device has been disconnected
-    NoDevice,
-    
     /// Data received was malformed
     Malformed(String),
     
@@ -212,8 +206,6 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::Response(r) => write!(f, "{} (0x{:04x})", StandardResponseCode::name(r).unwrap_or("Unknown"), r),
-            Error::Timeout => write!(f, "Operation timed out"),
-            Error::NoDevice => write!(f, "Device disconnected"),
             Error::Usb(ref e) => write!(f, "USB error: {}", e),
             Error::Io(ref e) => write!(f, "IO error: {}", e),
             Error::Malformed(ref e) => write!(f, "{}", e),
@@ -225,8 +217,6 @@ impl ::std::error::Error for Error {
     fn description(&self) -> &str {
         match *self {
             Error::Response(r) => StandardResponseCode::name(r).unwrap_or("<vendor-defined code>"),
-            Error::Timeout => "timeout",
-            Error::NoDevice => "disconnected",
             Error::Malformed(ref m) => m,
             Error::Usb(ref e) => e.description(),
             Error::Io(ref e) => e.description(),
@@ -244,11 +234,7 @@ impl ::std::error::Error for Error {
 
 impl From<libusb::Error> for Error {
     fn from(e: libusb::Error) -> Error {
-        match e {
-            libusb::Error::Timeout => Error::Timeout,
-            libusb::Error::NoDevice => Error::NoDevice,
-            e => Error::Usb(e),
-        }
+        Error::Usb(e)
     }
 }
 

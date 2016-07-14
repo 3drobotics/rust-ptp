@@ -1,6 +1,6 @@
 [package]
 name = "ptp"
-version = "0.2.2"
+version = "0.3.1"
 authors = ["Tim Ryan <tim@3drobotics.com>"]
 description = "Picture Transfer Protocol driver in Rust."
 license = "MIT"

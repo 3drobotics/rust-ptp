@@ -962,24 +962,32 @@ impl<'a> PtpCamera<'a> {
 
     // helper for command() above, retrieve container info and payload for the current phase
     fn read_txn_phase(&mut self) -> Result<(PtpContainerInfo, Vec<u8>), Error> {
-        // large enough to fetch objects other than media in a single read
-        let mut buf = Vec::with_capacity(100 * 1024);
         let timeout = Duration::from_secs(2);
 
-        unsafe {
-            let bufslice = slice::from_raw_parts_mut(buf.as_mut_ptr(), buf.capacity());
-            let n = try!(self.handle.read_bulk(self.ep_in, bufslice, timeout));
-            buf.set_len(n);
-        }
+        // buf is stack allocated and intended to be large enough to accomodate most
+        // cmd/ctrl data (ie, not media) without allocating. payload handling below
+        // deals with larger media responses. mark it as uninitalized to avoid paying
+        // for zeroing out 8k of memory, since rust doesn't know what libusb does with this memory.
+        let mut unintialized_buf: [u8; 8 * 1024];
+        let buf = unsafe {
+            unintialized_buf = ::std::mem::uninitialized();
+            let n = try!(self.handle.read_bulk(self.ep_in, &mut unintialized_buf[..], timeout));
+            &unintialized_buf[..n]
+        };
 
         let cinfo = try!(PtpContainerInfo::parse(&buf[..]));
         trace!("container {:?}", cinfo);
+
+        // no payload? we're done
+        if cinfo.payload_len == 0 {
+            return Ok((cinfo, vec![]));
+        }
 
         // allocate one extra to avoid a separate read for trailing short packet
         let mut payload = Vec::with_capacity(cinfo.payload_len + 1);
         payload.extend_from_slice(&buf[PTP_CONTAINER_INFO_SIZE..]);
 
-        // response didn't fit into our original buf? resize and read the rest
+        // response didn't fit into our original buf? read the rest
         if payload.len() < cinfo.payload_len {
             unsafe {
                 let p = payload.as_mut_ptr().offset(payload.len() as isize);

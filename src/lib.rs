@@ -967,34 +967,32 @@ impl<'a> PtpCamera<'a> {
         let mut buf = Vec::with_capacity(100 * 1024);
         let timeout = Duration::from_secs(2);
 
-        let bufslice = unsafe {
-            slice::from_raw_parts_mut(buf.as_mut_ptr(), buf.capacity())
-        };
-        let n = try!(self.handle.read_bulk(self.ep_in, bufslice, timeout));
-        unsafe { buf.set_len(n); }
-
-        let cinfo = try!(PtpContainerInfo::parse(&buf[..]));
-        trace!("container {:?}, bulk rx {}", cinfo, n);
-
-        // response didn't fit into our original buf? resize and read the rest
-        // should ideally require a single read, but loop to handle short reads.
-        while cinfo.payload_len > buf.len() - PTP_CONTAINER_INFO_SIZE {
-            // allocate one extra to deal w/zero length packets appropriately
-            let additional = cinfo.payload_len + PTP_CONTAINER_INFO_SIZE - buf.len() + 1;
-            buf.reserve(additional);
-            let bufslice = unsafe {
-                let p = buf.as_mut_ptr().offset(buf.len() as isize);
-                slice::from_raw_parts_mut(p, buf.capacity() - buf.len())
-            };
+        unsafe {
+            let bufslice = slice::from_raw_parts_mut(buf.as_mut_ptr(), buf.capacity());
             let n = try!(self.handle.read_bulk(self.ep_in, bufslice, timeout));
-            unsafe {
-                let sz = buf.len();
-                buf.set_len(sz + n);
-            }
-            trace!("  bulk rx {}, ({}/{})", n, buf.len(), buf.capacity());
+            buf.set_len(n);
         }
 
-        Ok((cinfo, buf.split_off(PTP_CONTAINER_INFO_SIZE)))
+        let cinfo = try!(PtpContainerInfo::parse(&buf[..]));
+        trace!("container {:?}", cinfo);
+
+        // allocate one extra to avoid a separate read for trailing short packet
+        let mut payload = Vec::with_capacity(cinfo.payload_len + 1);
+        payload.extend_from_slice(&buf[PTP_CONTAINER_INFO_SIZE..]);
+
+        // response didn't fit into our original buf? resize and read the rest
+        if payload.len() < cinfo.payload_len {
+            unsafe {
+                let p = payload.as_mut_ptr().offset(payload.len() as isize);
+                let pslice = slice::from_raw_parts_mut(p, payload.capacity() - payload.len());
+                let n = try!(self.handle.read_bulk(self.ep_in, pslice, timeout));
+                let sz = payload.len();
+                payload.set_len(sz + n);
+                trace!("  bulk rx {}, ({}/{})", n, payload.len(), payload.capacity());
+            }
+        }
+
+        Ok((cinfo, payload))
     }
 
     pub fn get_objectinfo(&mut self, handle: u32) -> Result<PtpObjectInfo, Error> {

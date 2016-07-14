@@ -792,10 +792,13 @@ impl PtpPropInfo {
 
 #[derive(Debug)]
 struct PtpContainerInfo {
-    pub kind: PtpContainerType,
-    pub tid: u32,               // transaction ID that this container belongs to
-    pub code: u16,              // StandardCommandCode or ResponseCode, depending on 'kind'
-    pub payload_len: usize,     // payload len in bytes, usually relevant for data phases
+    kind: PtpContainerType,
+    /// transaction ID that this container belongs to
+    tid: u32,
+    /// StandardCommandCode or ResponseCode, depending on 'kind'
+    code: u16,
+    /// payload len in bytes, usually relevant for data phases
+    payload_len: usize,
 }
 
 const PTP_CONTAINER_INFO_SIZE: usize = 12;

@@ -37,6 +37,43 @@ impl PtpContainerType {
 
 pub type ResponseCode = u16;
 
+#[derive(Debug, PartialEq)]
+#[repr(u16)]
+pub enum ObjectFormatCode {
+    UndefinedNonImg = 0x3000, // Undefined non-image object
+    Assoc = 0x3001, // Association (e.g. folder)
+    Script = 0x3002, // Device-model-specific script
+    Executable = 0x3003, // Device-model-specific binary executable
+    Text = 0x3004, // Text file
+    HTML = 0x3005, // HyperText Markup Language file (text)
+    DPOF = 0x3006, // Digital Print Order Format file (text)
+    AIFF = 0x3007,  // Audio clip
+    WAV = 0x3008, // Audio clip
+    MP3 = 0x3009, // Audio clip
+    AVI = 0x300A, // Video clip
+    MPEG = 0x300B, // Video clip
+    ASF = 0x300C, // Microsoft Advanced Streaming Format (video)
+    UndefinedImg = 0x3800, // Unknown image object
+    ExifJpeg = 0x3801, // Exchangeable File Format, JEIDA standard
+    TiffEp = 0x3802, // Tag Image File Format for Electronic Photography
+    FlashPix = 0x3803, // Structured Storage Image Format
+    BMP = 0x3804, // Microsoft Windows Bitmap file
+    CIFF = 0x3805, // Canon Camera Image File Format
+    // Undefined = 0x3806, // Reserved
+    GIF = 0x3807, // Graphics Interchange Format
+    JFIF = 0x3808, // JPEG File Interchange Format
+    PCD = 0x3809, // PhotoCD Image Pac
+    PICT = 0x380A, // Quickdraw Image Format
+    PNG = 0x380B, // Portable Network Graphics
+    // Undefined = 0x380C, // Reserved
+    TIFF = 0x380D, // Tag Image File Format
+    TiffIt = 0x380E, // Tag Image File Format for Information Technology (graphic arts)
+    JP2 = 0x380F, // JPEG2000 Baseline File Format
+    JPX = 0x3810, // JPEG2000 Extended File Format
+    // All other codes with MSN of 0011, Undefined, Reserved for future use
+    // All other codes with MSN of 1011, Vendor-Defined
+}
+
 #[allow(non_upper_case_globals)]
 pub mod StandardResponseCode {
     use super::ResponseCode;

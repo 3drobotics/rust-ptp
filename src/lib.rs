@@ -5,7 +5,7 @@ extern crate libusb;
 extern crate byteorder;
 extern crate time;
 
-use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian, ByteOrder};
+use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian};
 use std::io::prelude::*;
 use std::io::Cursor;
 use std::io;
@@ -791,42 +791,36 @@ impl PtpPropInfo {
 }
 
 #[derive(Debug)]
-struct PtpTransaction {
-    pub tid: u32,
-    pub code: u16,
-    pub data: Vec<u8>,
+struct PtpContainerInfo {
+    pub kind: PtpContainerType,
+    pub tid: u32,               // transaction ID that this container belongs to
+    pub code: u16,              // StandardCommandCode or ResponseCode, depending on 'kind'
+    pub payload_len: usize,     // payload len in bytes, usually relevant for data phases
 }
 
-impl PtpTransaction {
-    pub fn parse(buf: &[u8]) -> Result<(PtpContainerType, PtpTransaction), Error> {
-        let mut cur = Cursor::new(buf);
+const PTP_CONTAINER_INFO_SIZE: usize = 12;
 
-        let len = try!(cur.read_u32::<LittleEndian>());
+impl PtpContainerInfo {
+    pub fn parse<R: ReadBytesExt>(mut r: R) -> Result<PtpContainerInfo, Error> {
 
-        let msgtype = try!(cur.read_u16::<LittleEndian>());
+        let len = try!(r.read_u32::<LittleEndian>());
+        let msgtype = try!(r.read_u16::<LittleEndian>());
         let mtype = try!(PtpContainerType::from_u16(msgtype)
             .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", msgtype))));
-        let code = try!(cur.read_u16::<LittleEndian>());
-        let tid = try!(cur.read_u32::<LittleEndian>());
+        let code = try!(r.read_u16::<LittleEndian>());
+        let tid = try!(r.read_u32::<LittleEndian>());
 
-        let data_len = if len > 12 {
-            len - 12
-        } else {
-            0
-        };
-        let mut data = Vec::with_capacity(data_len as usize);
-        try!(cur.read_to_end(&mut data));
-
-        Ok((mtype,
-            PtpTransaction {
+        Ok(PtpContainerInfo {
+            kind: mtype,
             tid: tid,
             code: code,
-            data: data,
-        }))
+            payload_len: len as usize - PTP_CONTAINER_INFO_SIZE,
+        })
     }
 
-    pub fn is_response(&self, target: &PtpTransaction) -> bool {
-        self.tid == target.tid
+    // does this container belong to the given transaction?
+    pub fn belongs_to(&self, tid: u32) -> bool {
+        self.tid == tid
     }
 }
 
@@ -853,7 +847,6 @@ fn ptp_gen_cmd_message(w: &mut Write, code: CommandCode, tid: u32, params: &[u32
 }
 
 pub struct PtpCamera<'a> {
-    buf: Vec<u8>, // TODO make this private
     iface: u8,
     ep_in: u8,
     ep_out: u8,
@@ -885,7 +878,6 @@ impl<'a> PtpCamera<'a> {
         };
 
         Ok(PtpCamera {
-            buf: Vec::with_capacity(1*1024*1024),
             iface: interface_desc.interface_number(),
             ep_in:  try!(find_endpoint(libusb::Direction::In, libusb::TransferType::Bulk)),
             ep_out: try!(find_endpoint(libusb::Direction::Out, libusb::TransferType::Bulk)),
@@ -900,12 +892,6 @@ impl<'a> PtpCamera<'a> {
                    params: &[u32],
                    data: Option<&[u8]>)
                    -> Result<Vec<u8>, Error> {
-                                          
-        let transaction = PtpTransaction {
-            tid: self.current_tid,
-            code: code,
-            data: vec![], // TODO
-        };
 
         let timeout = Duration::from_secs(2);
 
@@ -942,56 +928,70 @@ impl<'a> PtpCamera<'a> {
             try!(self.handle.write_bulk(self.ep_out, &data_message, timeout));
         }
 
+        let tid = self.current_tid; // transaction id we're waiting for a response to
         self.current_tid += 1;
 
-        let mut data = None;
+        // request phase is followed by data phase (optional) and response phase.
+        // read both, check the status on the response, and return the data payload, if any.
+        //
+        // NB: responses with mismatching transaction IDs are discarded - does this represent
+        //      an error, or should we do anything more helpful in this case?
+        let mut data_phase_payload = vec![];
         loop {
-            unsafe {
-                self.buf.set_len(0);
-            }
-
-            loop {
-                let chunk_size = 256 * 1024;
-                let current_len = self.buf.len();
-                let current_capacity = self.buf.capacity();
-                if current_capacity - current_len < chunk_size {
-                    self.buf.reserve(chunk_size);
+            let (container, payload) = try!(self.read_txn_phase());
+            if container.belongs_to(tid) {
+                match container.kind {
+                    PtpContainerType::Data => {
+                        data_phase_payload = payload;
+                    },
+                    PtpContainerType::Response => {
+                        if container.code != StandardResponseCode::Ok {
+                            return Err(Error::Response(container.code));
+                        }
+                        return Ok(data_phase_payload);
+                    },
+                    _ => {}
                 }
-                let remaining_buf = unsafe {
-                    slice::from_raw_parts_mut(self.buf.get_unchecked_mut(current_len) as *mut _, chunk_size)
-                };
-                let timespec = time::get_time();
-                trace!("Read Data  [{}:{:09}] - length:{:?} remaining:{:?}",
-                       timespec.sec,
-                       timespec.nsec,
-                       current_len,
-                       remaining_buf.len());
-                let len = try!(self.handle.read_bulk(self.ep_in, remaining_buf, timeout));
-                unsafe {
-                    self.buf.set_len(current_len + len);
-                }
-                // debug!("new buf len [{:?}] into {:?}", self.buf.len(), remaining_buf.len());
-                if len < remaining_buf.len() {
-                    break;
-                }
-            }
-
-            let (mtype, mut msg) = try!(PtpTransaction::parse(&self.buf));
-
-            if mtype == PtpContainerType::Data && msg.is_response(&transaction) {
-                data = Some(msg.data);
-            } else if mtype == PtpContainerType::Response && msg.is_response(&transaction) {
-                if let Some(data) = data {
-                    msg.data = data;
-                }
-                
-                if msg.code != StandardResponseCode::Ok {
-                    return Err(Error::Response(msg.code));
-                }
-                
-                return Ok(msg.data);
+            } else {
+                debug!("mismatched txnid {}, expecting {}", container.tid, tid);
             }
         }
+    }
+
+    // helper for command() above, retrieve container info and payload for the current phase
+    fn read_txn_phase(&mut self) -> Result<(PtpContainerInfo, Vec<u8>), Error> {
+        // large enough to fetch objects other than media in a single read
+        let mut buf = Vec::with_capacity(100 * 1024);
+        let timeout = Duration::from_secs(2);
+
+        let bufslice = unsafe {
+            slice::from_raw_parts_mut(buf.as_mut_ptr(), buf.capacity())
+        };
+        let n = try!(self.handle.read_bulk(self.ep_in, bufslice, timeout));
+        unsafe { buf.set_len(n); }
+
+        let cinfo = try!(PtpContainerInfo::parse(&buf[..]));
+        trace!("container {:?}, bulk rx {}", cinfo, n);
+
+        // response didn't fit into our original buf? resize and read the rest
+        // should ideally require a single read, but loop to handle short reads.
+        while cinfo.payload_len > buf.len() - PTP_CONTAINER_INFO_SIZE {
+            // allocate one extra to deal w/zero length packets appropriately
+            let additional = cinfo.payload_len + PTP_CONTAINER_INFO_SIZE - buf.len() + 1;
+            buf.reserve(additional);
+            let bufslice = unsafe {
+                let p = buf.as_mut_ptr().offset(buf.len() as isize);
+                slice::from_raw_parts_mut(p, buf.capacity() - buf.len())
+            };
+            let n = try!(self.handle.read_bulk(self.ep_in, bufslice, timeout));
+            unsafe {
+                let sz = buf.len();
+                buf.set_len(sz + n);
+            }
+            trace!("  bulk rx {}, ({}/{})", n, buf.len(), buf.capacity());
+        }
+
+        Ok((cinfo, buf.split_off(PTP_CONTAINER_INFO_SIZE)))
     }
 
     pub fn get_objectinfo(&mut self, handle: u32) -> Result<PtpObjectInfo, Error> {

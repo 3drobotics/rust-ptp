@@ -942,21 +942,20 @@ impl<'a> PtpCamera<'a> {
         let mut data_phase_payload = vec![];
         loop {
             let (container, payload) = try!(self.read_txn_phase());
-            if container.belongs_to(tid) {
-                match container.kind {
-                    PtpContainerType::Data => {
-                        data_phase_payload = payload;
-                    },
-                    PtpContainerType::Response => {
-                        if container.code != StandardResponseCode::Ok {
-                            return Err(Error::Response(container.code));
-                        }
-                        return Ok(data_phase_payload);
-                    },
-                    _ => {}
-                }
-            } else {
-                debug!("mismatched txnid {}, expecting {}", container.tid, tid);
+            if !container.belongs_to(tid) {
+                return Err(Error::Malformed(format!("mismatched txnid {}, expecting {}", container.tid, tid)));
+            }
+            match container.kind {
+                PtpContainerType::Data => {
+                    data_phase_payload = payload;
+                },
+                PtpContainerType::Response => {
+                    if container.code != StandardResponseCode::Ok {
+                        return Err(Error::Response(container.code));
+                    }
+                    return Ok(data_phase_payload);
+                },
+                _ => {}
             }
         }
     }

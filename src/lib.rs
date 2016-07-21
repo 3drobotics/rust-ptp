@@ -187,7 +187,12 @@ pub mod StandardCommandCode {
     pub const CopyObject: CommandCode = 0x101A;
     pub const GetPartialObject: CommandCode = 0x101B;
     pub const InitiateOpenCapture: CommandCode = 0x101C;
-    
+    // MTP opcodes
+    pub const GetObjectPropsSupported: CommandCode = 0x9801;
+    pub const GetObjectPropDesc: CommandCode = 0x9802;
+    pub const GetObjectPropValue: CommandCode = 0x9803;
+    pub const GetObjectPropList: CommandCode = 0x9805;
+
     pub fn name(v: CommandCode) -> Option<&'static str> {
         match v {
             Undefined => Some("Undefined"),
@@ -219,6 +224,10 @@ pub mod StandardCommandCode {
             CopyObject => Some("CopyObject"),
             GetPartialObject => Some("GetPartialObject"),
             InitiateOpenCapture => Some("InitiateOpenCapture"),
+            GetObjectPropsSupported => Some("GetObjectPropsSupported"),
+            GetObjectPropDesc => Some("GetObjectPropDesc"),
+            GetObjectPropValue => Some("GetObjectPropValue"),
+            GetObjectPropList => Some("GetObjectPropList"),
             _ => None,
         }
     }

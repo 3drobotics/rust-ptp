@@ -860,6 +860,7 @@ pub enum PtpFormData {
 
 #[allow(non_snake_case)]
 #[derive(Debug)]
+// corresponds to DevicePropDesc in spec
 pub struct PtpPropInfo {
     pub PropertyCode: u16,
     pub DataType: u16,
@@ -906,6 +907,58 @@ impl PtpPropInfo {
                         }
                     }
                     _ => PtpFormData::None,
+                }
+            },
+        })
+    }
+}
+
+// similar to PtpPropInfo, aka DevicePropDesc
+#[derive(Debug)]
+pub struct ObjectPropDesc {
+    pub property_code: u16,
+    pub datatype: u16,
+    pub get_set: u8,
+    pub default_val: PtpDataType,
+    pub group_code: u32,
+    pub form: PtpFormData,
+}
+
+impl ObjectPropDesc {
+    pub fn decode<R: PtpRead>(r: &mut R) -> Result<ObjectPropDesc, Error> {
+        let datatype;
+        Ok(ObjectPropDesc {
+            property_code: try!(r.read_ptp_u16()),
+            datatype: {
+                datatype = try!(r.read_ptp_u16());
+                datatype
+            },
+            get_set: try!(r.read_u8()),
+            default_val: try!(PtpDataType::read_type(datatype, r)),
+            group_code: try!(r.read_ptp_u32()),
+            form: {
+                match try!(r.read_u8()) {
+                    // 0x00 => PtpFormData::None,
+                    0x01 => {
+                        PtpFormData::Range {
+                            minValue: try!(PtpDataType::read_type(datatype, r)),
+                            maxValue: try!(PtpDataType::read_type(datatype, r)),
+                            step: try!(PtpDataType::read_type(datatype, r)),
+                        }
+                    }
+                    0x02 => {
+                        PtpFormData::Enumeration {
+                            array: {
+                                let len = try!(r.read_ptp_u16()) as usize;
+                                let mut arr = Vec::with_capacity(len);
+                                for _ in 0..len {
+                                    arr.push(try!(PtpDataType::read_type(datatype, r)));
+                                }
+                                arr
+                            },
+                        }
+                    }
+                    _ => PtpFormData::None, // other MTP form types not handled
                 }
             },
         })

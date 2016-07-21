@@ -37,6 +37,119 @@ impl PtpContainerType {
 
 pub type ResponseCode = u16;
 
+#[derive(Debug, PartialEq)]
+#[repr(u16)]
+pub enum ObjectFormatCode {
+    UndefinedNonImg = 0x3000, // Undefined non-image object
+    Assoc = 0x3001, // Association (e.g. folder)
+    Script = 0x3002, // Device-model-specific script
+    Executable = 0x3003, // Device-model-specific binary executable
+    Text = 0x3004, // Text file
+    HTML = 0x3005, // HyperText Markup Language file (text)
+    DPOF = 0x3006, // Digital Print Order Format file (text)
+    AIFF = 0x3007,  // Audio clip
+    WAV = 0x3008, // Audio clip
+    MP3 = 0x3009, // Audio clip
+    AVI = 0x300A, // Video clip
+    MPEG = 0x300B, // Video clip
+    ASF = 0x300C, // Microsoft Advanced Streaming Format (video)
+    UndefinedImg = 0x3800, // Unknown image object
+    ExifJpeg = 0x3801, // Exchangeable File Format, JEIDA standard
+    TiffEp = 0x3802, // Tag Image File Format for Electronic Photography
+    FlashPix = 0x3803, // Structured Storage Image Format
+    BMP = 0x3804, // Microsoft Windows Bitmap file
+    CIFF = 0x3805, // Canon Camera Image File Format
+    // Undefined = 0x3806, // Reserved
+    GIF = 0x3807, // Graphics Interchange Format
+    JFIF = 0x3808, // JPEG File Interchange Format
+    PCD = 0x3809, // PhotoCD Image Pac
+    PICT = 0x380A, // Quickdraw Image Format
+    PNG = 0x380B, // Portable Network Graphics
+    // Undefined = 0x380C, // Reserved
+    TIFF = 0x380D, // Tag Image File Format
+    TiffIt = 0x380E, // Tag Image File Format for Information Technology (graphic arts)
+    JP2 = 0x380F, // JPEG2000 Baseline File Format
+    JPX = 0x3810, // JPEG2000 Extended File Format
+    // All other codes with MSN of 0011, Undefined, Reserved for future use
+    // All other codes with MSN of 1011, Vendor-Defined
+}
+
+#[derive(Debug, PartialEq)]
+#[repr(u16)]
+// specified in MTP v1.1
+pub enum ObjectPropertyCode {
+    StorageID = 0xDC01,
+    ObjectFormat = 0xDC02,
+    ProtectionStatus = 0xDC03,
+    ObjectSize = 0xDC04,
+    AssociationType = 0xDC05,
+    AssociationDesc = 0xDC06,
+    ObjectFileName = 0xDC07,
+    DateCreated = 0xDC08,
+    DateModified = 0xDC09,
+    Keywords = 0xDC0A,
+    ParentObject = 0xDC0B,
+    AllowedFolderContents = 0xDC0C,
+    Hidden = 0xDC0D,
+    SystemObject = 0xDC0E,
+    PersistentUniqueObjectIdentifier = 0xDC41,
+    SyncID = 0xDC42,
+    PropertyBag = 0xDC43,
+    Name = 0xDC44,
+    CreatedBy = 0xDC45,
+    Artist = 0xDC46,
+    DateAuthored = 0xDC47,
+    Description = 0xDC48,
+    URLReference = 0xDC49,
+    LanguageLocale = 0xDC4A,
+    CopyrightInformation = 0xDC4B,
+    Source = 0xDC4C,
+    OriginLocation = 0xDC4D,
+    DateAdded = 0xDC4E,
+    // ...snip...
+    Width = 0xDC87,
+    Height = 0xDC88,
+    // ...snip...
+}
+
+impl ObjectPropertyCode {
+    pub fn name(v: Self) -> Option<&'static str> {
+        use ObjectPropertyCode::*;
+        match v {
+            StorageID => Some("StorageID"),
+            ObjectFormat => Some("ObjectFormat"),
+            ProtectionStatus => Some("ProtectionStatus"),
+            ObjectSize => Some("ObjectSize"),
+            AssociationType => Some("AssociationType"),
+            AssociationDesc => Some("AssociationDesc"),
+            ObjectFileName => Some("ObjectFileName"),
+            DateCreated => Some("DateCreated"),
+            DateModified => Some("DateModified"),
+            Keywords => Some("Keywords"),
+            ParentObject => Some("ParentObject"),
+            AllowedFolderContents => Some("AllowedFolderContents"),
+            Hidden => Some("Hidden"),
+            SystemObject => Some("SystemObject"),
+            PersistentUniqueObjectIdentifier => Some("PersistentUniqueObjectIdentifier"),
+            SyncID => Some("SyncID"),
+            PropertyBag => Some("PropertyBag"),
+            Name => Some("Name"),
+            CreatedBy => Some("CreatedBy"),
+            Artist => Some("Artist"),
+            DateAuthored => Some("DateAuthored"),
+            Description => Some("Description"),
+            URLReference => Some("URLReference"),
+            LanguageLocale => Some("LanguageLocale"),
+            CopyrightInformation => Some("CopyrightInformation"),
+            Source => Some("Source"),
+            OriginLocation => Some("OriginLocation"),
+            DateAdded => Some("DateAdded"),
+            Width => Some("Width"),
+            Height => Some("Height"),
+        }
+    }
+}
+
 #[allow(non_upper_case_globals)]
 pub mod StandardResponseCode {
     use super::ResponseCode;
@@ -150,7 +263,12 @@ pub mod StandardCommandCode {
     pub const CopyObject: CommandCode = 0x101A;
     pub const GetPartialObject: CommandCode = 0x101B;
     pub const InitiateOpenCapture: CommandCode = 0x101C;
-    
+    // MTP opcodes
+    pub const GetObjectPropsSupported: CommandCode = 0x9801;
+    pub const GetObjectPropDesc: CommandCode = 0x9802;
+    pub const GetObjectPropValue: CommandCode = 0x9803;
+    pub const GetObjectPropList: CommandCode = 0x9805;
+
     pub fn name(v: CommandCode) -> Option<&'static str> {
         match v {
             Undefined => Some("Undefined"),
@@ -182,6 +300,10 @@ pub mod StandardCommandCode {
             CopyObject => Some("CopyObject"),
             GetPartialObject => Some("GetPartialObject"),
             InitiateOpenCapture => Some("InitiateOpenCapture"),
+            GetObjectPropsSupported => Some("GetObjectPropsSupported"),
+            GetObjectPropDesc => Some("GetObjectPropDesc"),
+            GetObjectPropValue => Some("GetObjectPropValue"),
+            GetObjectPropList => Some("GetObjectPropList"),
             _ => None,
         }
     }
@@ -738,6 +860,7 @@ pub enum PtpFormData {
 
 #[allow(non_snake_case)]
 #[derive(Debug)]
+// corresponds to DevicePropDesc in spec
 pub struct PtpPropInfo {
     pub PropertyCode: u16,
     pub DataType: u16,
@@ -790,6 +913,58 @@ impl PtpPropInfo {
     }
 }
 
+// similar to PtpPropInfo, aka DevicePropDesc
+#[derive(Debug)]
+pub struct ObjectPropDesc {
+    pub property_code: u16,
+    pub datatype: u16,
+    pub get_set: u8,
+    pub default_val: PtpDataType,
+    pub group_code: u32,
+    pub form: PtpFormData,
+}
+
+impl ObjectPropDesc {
+    pub fn decode<R: PtpRead>(r: &mut R) -> Result<ObjectPropDesc, Error> {
+        let datatype;
+        Ok(ObjectPropDesc {
+            property_code: try!(r.read_ptp_u16()),
+            datatype: {
+                datatype = try!(r.read_ptp_u16());
+                datatype
+            },
+            get_set: try!(r.read_u8()),
+            default_val: try!(PtpDataType::read_type(datatype, r)),
+            group_code: try!(r.read_ptp_u32()),
+            form: {
+                match try!(r.read_u8()) {
+                    // 0x00 => PtpFormData::None,
+                    0x01 => {
+                        PtpFormData::Range {
+                            minValue: try!(PtpDataType::read_type(datatype, r)),
+                            maxValue: try!(PtpDataType::read_type(datatype, r)),
+                            step: try!(PtpDataType::read_type(datatype, r)),
+                        }
+                    }
+                    0x02 => {
+                        PtpFormData::Enumeration {
+                            array: {
+                                let len = try!(r.read_ptp_u16()) as usize;
+                                let mut arr = Vec::with_capacity(len);
+                                for _ in 0..len {
+                                    arr.push(try!(PtpDataType::read_type(datatype, r)));
+                                }
+                                arr
+                            },
+                        }
+                    }
+                    _ => PtpFormData::None, // other MTP form types not handled
+                }
+            },
+        })
+    }
+}
+
 #[derive(Debug)]
 struct PtpContainerInfo {
     kind: PtpContainerType,
@@ -824,6 +999,27 @@ impl PtpContainerInfo {
     // does this container belong to the given transaction?
     pub fn belongs_to(&self, tid: u32) -> bool {
         self.tid == tid
+    }
+}
+
+#[derive(Debug)]
+pub struct ObjectProperty {
+    pub handle: u32,
+    pub property_code: u16, // ObjectPropertyCode or one we don't know about
+    pub data: PtpDataType,
+}
+
+impl ObjectProperty {
+    pub fn decode<R: PtpRead>(r: &mut R) -> Result<ObjectProperty, Error> {
+        let h = try!(r.read_ptp_u32());
+        let pc = try!(r.read_ptp_u16());
+        let datatype = try!(r.read_ptp_u16());
+
+        Ok(ObjectProperty{
+            handle: h,
+            property_code: pc,
+            data: try!(PtpDataType::read_type(datatype, r)),
+        })
     }
 }
 
@@ -1098,6 +1294,41 @@ impl<'a> PtpCamera<'a> {
         let device_info = try!(PtpDeviceInfo::decode(&data));
         debug!("device_info {:?}", device_info);
         Ok(device_info)
+    }
+
+    pub fn get_object_prop_desc(&mut self, prop_code: u16, fmt_code: u16) -> Result<ObjectPropDesc, Error> {
+        let params = &[prop_code as u32, fmt_code as u32];
+        let data = try!(self.command(StandardCommandCode::GetObjectPropDesc, params, None));
+        let mut cur = Cursor::new(data);
+        let object_prop_desc = try!(ObjectPropDesc::decode(&mut cur));
+        Ok(object_prop_desc)
+    }
+
+    pub fn get_object_prop_list(&mut self, handle: u32, format: Option<ObjectFormatCode>,
+                                prop_code: u32, prop_group_code: Option<u32>,
+                                depth: Option<u32>) -> Result<Vec<ObjectProperty>, Error> {
+
+        let fmt = if let Some(f) = format {
+            f as u32
+        } else {
+            0x0
+        };
+
+        let params = &[handle,
+                        fmt,
+                        prop_code,
+                        prop_group_code.unwrap_or(0x0),
+                        depth.unwrap_or(0x1)];
+
+        let data = try!(self.command(StandardCommandCode::GetObjectPropList, params, None));
+
+        let mut cur = Cursor::new(data);
+        let count = try!(cur.read_ptp_u32());
+        let mut props = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            props.push(try!(ObjectProperty::decode(&mut cur)));
+        }
+        Ok(props)
     }
 
     pub fn open_session(&mut self) -> Result<(), Error> {

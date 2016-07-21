@@ -949,6 +949,27 @@ impl PtpContainerInfo {
     }
 }
 
+#[derive(Debug)]
+pub struct ObjectProperty {
+    pub handle: u32,
+    pub property_code: u16, // ObjectPropertyCode or one we don't know about
+    pub data: PtpDataType,
+}
+
+impl ObjectProperty {
+    pub fn decode<R: PtpRead>(r: &mut R) -> Result<ObjectProperty, Error> {
+        let h = try!(r.read_ptp_u32());
+        let pc = try!(r.read_ptp_u16());
+        let datatype = try!(r.read_ptp_u16());
+
+        Ok(ObjectProperty{
+            handle: h,
+            property_code: pc,
+            data: try!(PtpDataType::read_type(datatype, r)),
+        })
+    }
+}
+
 fn ptp_gen_message(w: &mut Write,
                    kind: PtpContainerType,
                    code: CommandCode,

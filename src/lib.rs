@@ -74,6 +74,82 @@ pub enum ObjectFormatCode {
     // All other codes with MSN of 1011, Vendor-Defined
 }
 
+#[derive(Debug, PartialEq)]
+#[repr(u16)]
+// specified in MTP v1.1
+pub enum ObjectPropertyCode {
+    StorageID = 0xDC01,
+    ObjectFormat = 0xDC02,
+    ProtectionStatus = 0xDC03,
+    ObjectSize = 0xDC04,
+    AssociationType = 0xDC05,
+    AssociationDesc = 0xDC06,
+    ObjectFileName = 0xDC07,
+    DateCreated = 0xDC08,
+    DateModified = 0xDC09,
+    Keywords = 0xDC0A,
+    ParentObject = 0xDC0B,
+    AllowedFolderContents = 0xDC0C,
+    Hidden = 0xDC0D,
+    SystemObject = 0xDC0E,
+    PersistentUniqueObjectIdentifier = 0xDC41,
+    SyncID = 0xDC42,
+    PropertyBag = 0xDC43,
+    Name = 0xDC44,
+    CreatedBy = 0xDC45,
+    Artist = 0xDC46,
+    DateAuthored = 0xDC47,
+    Description = 0xDC48,
+    URLReference = 0xDC49,
+    LanguageLocale = 0xDC4A,
+    CopyrightInformation = 0xDC4B,
+    Source = 0xDC4C,
+    OriginLocation = 0xDC4D,
+    DateAdded = 0xDC4E,
+    // ...snip...
+    Width = 0xDC87,
+    Height = 0xDC88,
+    // ...snip...
+}
+
+impl ObjectPropertyCode {
+    pub fn name(v: Self) -> Option<&'static str> {
+        use ObjectPropertyCode::*;
+        match v {
+            StorageID => Some("StorageID"),
+            ObjectFormat => Some("ObjectFormat"),
+            ProtectionStatus => Some("ProtectionStatus"),
+            ObjectSize => Some("ObjectSize"),
+            AssociationType => Some("AssociationType"),
+            AssociationDesc => Some("AssociationDesc"),
+            ObjectFileName => Some("ObjectFileName"),
+            DateCreated => Some("DateCreated"),
+            DateModified => Some("DateModified"),
+            Keywords => Some("Keywords"),
+            ParentObject => Some("ParentObject"),
+            AllowedFolderContents => Some("AllowedFolderContents"),
+            Hidden => Some("Hidden"),
+            SystemObject => Some("SystemObject"),
+            PersistentUniqueObjectIdentifier => Some("PersistentUniqueObjectIdentifier"),
+            SyncID => Some("SyncID"),
+            PropertyBag => Some("PropertyBag"),
+            Name => Some("Name"),
+            CreatedBy => Some("CreatedBy"),
+            Artist => Some("Artist"),
+            DateAuthored => Some("DateAuthored"),
+            Description => Some("Description"),
+            URLReference => Some("URLReference"),
+            LanguageLocale => Some("LanguageLocale"),
+            CopyrightInformation => Some("CopyrightInformation"),
+            Source => Some("Source"),
+            OriginLocation => Some("OriginLocation"),
+            DateAdded => Some("DateAdded"),
+            Width => Some("Width"),
+            Height => Some("Height"),
+        }
+    }
+}
+
 #[allow(non_upper_case_globals)]
 pub mod StandardResponseCode {
     use super::ResponseCode;

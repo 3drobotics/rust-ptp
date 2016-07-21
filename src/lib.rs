@@ -1296,6 +1296,41 @@ impl<'a> PtpCamera<'a> {
         Ok(device_info)
     }
 
+    pub fn get_object_prop_desc(&mut self, prop_code: u16, fmt_code: u16) -> Result<ObjectPropDesc, Error> {
+        let params = &[prop_code as u32, fmt_code as u32];
+        let data = try!(self.command(StandardCommandCode::GetObjectPropDesc, params, None));
+        let mut cur = Cursor::new(data);
+        let object_prop_desc = try!(ObjectPropDesc::decode(&mut cur));
+        Ok(object_prop_desc)
+    }
+
+    pub fn get_object_prop_list(&mut self, handle: u32, format: Option<ObjectFormatCode>,
+                                prop_code: u32, prop_group_code: Option<u32>,
+                                depth: Option<u32>) -> Result<Vec<ObjectProperty>, Error> {
+
+        let fmt = if let Some(f) = format {
+            f as u32
+        } else {
+            0x0
+        };
+
+        let params = &[handle,
+                        fmt,
+                        prop_code,
+                        prop_group_code.unwrap_or(0x0),
+                        depth.unwrap_or(0x1)];
+
+        let data = try!(self.command(StandardCommandCode::GetObjectPropList, params, None));
+
+        let mut cur = Cursor::new(data);
+        let count = try!(cur.read_ptp_u32());
+        let mut props = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            props.push(try!(ObjectProperty::decode(&mut cur)));
+        }
+        Ok(props)
+    }
+
     pub fn open_session(&mut self) -> Result<(), Error> {
         let session_id = 3;
 

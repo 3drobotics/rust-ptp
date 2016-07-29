@@ -889,14 +889,24 @@ impl<'a> PtpCamera<'a> {
             handle: handle,
         })
     }
-    
+
+    /// execute a PTP transaction.
+    /// consists of the following phases:
+    ///  - command
+    ///  - command data (optional, if `data` is Some)
+    ///  - response data (optional, if response contains a payload)
+    ///  - response status
+    /// NB: each phase involves a separate USB transfer, and `timeout` is used for each phase,
+    /// so the total time taken may be greater than `timeout`.
     pub fn command(&mut self,
                    code: CommandCode,
                    params: &[u32],
-                   data: Option<&[u8]>)
+                   data: Option<&[u8]>,
+                   timeout: Option<Duration>)
                    -> Result<Vec<u8>, Error> {
 
-        let timeout = Duration::from_secs(2);
+        // timeout of 0 means unlimited timeout.
+        let timeout = timeout.unwrap_or(Duration::new(0, 0));
 
         // Send messages.
         let mut cmd_message = vec![];
@@ -941,7 +951,7 @@ impl<'a> PtpCamera<'a> {
         //      an error, or should we do anything more helpful in this case?
         let mut data_phase_payload = vec![];
         loop {
-            let (container, payload) = try!(self.read_txn_phase());
+            let (container, payload) = try!(self.read_txn_phase(timeout));
             if !container.belongs_to(tid) {
                 return Err(Error::Malformed(format!("mismatched txnid {}, expecting {}", container.tid, tid)));
             }
@@ -961,9 +971,7 @@ impl<'a> PtpCamera<'a> {
     }
 
     // helper for command() above, retrieve container info and payload for the current phase
-    fn read_txn_phase(&mut self) -> Result<(PtpContainerInfo, Vec<u8>), Error> {
-        let timeout = Duration::from_secs(2);
-
+    fn read_txn_phase(&mut self, timeout: Duration) -> Result<(PtpContainerInfo, Vec<u8>), Error> {
         // buf is stack allocated and intended to be large enough to accomodate most
         // cmd/ctrl data (ie, not media) without allocating. payload handling below
         // deals with larger media responses. mark it as uninitalized to avoid paying
@@ -1002,23 +1010,24 @@ impl<'a> PtpCamera<'a> {
         Ok((cinfo, payload))
     }
 
-    pub fn get_objectinfo(&mut self, handle: u32) -> Result<PtpObjectInfo, Error> {
-        let data = try!(self.command(StandardCommandCode::GetObjectInfo, &[handle], None));
+    pub fn get_objectinfo(&mut self, handle: u32, timeout: Option<Duration>) -> Result<PtpObjectInfo, Error> {
+        let data = try!(self.command(StandardCommandCode::GetObjectInfo, &[handle], None, timeout));
         Ok(try!(PtpObjectInfo::decode(&data)))
     }
 
-    pub fn get_object(&mut self, handle: u32) -> Result<Vec<u8>, Error> {
-        self.command(StandardCommandCode::GetObject, &[handle], None)
+    pub fn get_object(&mut self, handle: u32, timeout: Option<Duration>) -> Result<Vec<u8>, Error> {
+        self.command(StandardCommandCode::GetObject, &[handle], None, timeout)
     }
 
     pub fn get_objecthandles(&mut self,
                              storage_id: u32,
                              handle_id: u32,
-                             filter: Option<u32>)
+                             filter: Option<u32>,
+                             timeout: Option<Duration>)
                              -> Result<Vec<u32>, Error> {
         let data = try!(self.command(StandardCommandCode::GetObjectHandles,
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
-                                    None));
+                                    None, timeout));
         // Parse ObjectHandleArrray
         let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32_vec());
@@ -1029,27 +1038,30 @@ impl<'a> PtpCamera<'a> {
 
     pub fn get_objecthandles_root(&mut self,
                                   storage_id: u32,
-                                  filter: Option<u32>)
+                                  filter: Option<u32>,
+                                  timeout: Option<Duration>)
                                   -> Result<Vec<u32>, Error> {
-        self.get_objecthandles(storage_id, 0xFFFFFFFF, filter)
+        self.get_objecthandles(storage_id, 0xFFFFFFFF, filter, timeout)
     }
 
     pub fn get_objecthandles_all(&mut self,
                                  storage_id: u32,
-                                 filter: Option<u32>)
+                                 filter: Option<u32>,
+                                 timeout: Option<Duration>)
                                  -> Result<Vec<u32>, Error> {
-        self.get_objecthandles(storage_id, 0x0, filter)
+        self.get_objecthandles(storage_id, 0x0, filter, timeout)
     }
 
     // handle_id: None == root of store
     pub fn get_numobjects(&mut self,
                           storage_id: u32,
                           handle_id: u32,
-                          filter: Option<u32>)
+                          filter: Option<u32>,
+                          timeout: Option<Duration>)
                           -> Result<u32, Error> {
         let data = try!(self.command(StandardCommandCode::GetNumObjects,
                                     &[storage_id, filter.unwrap_or(0x0), handle_id],
-                                    None));
+                                    None, timeout));
 
         // Parse ObjectHandleArrray
         let mut cur = Cursor::new(data);
@@ -1059,8 +1071,8 @@ impl<'a> PtpCamera<'a> {
         Ok(value)
     }
 
-    pub fn get_storage_info(&mut self, storage_id: u32) -> Result<PtpStorageInfo, Error> {
-        let data = try!(self.command(StandardCommandCode::GetStorageInfo, &[storage_id], None));
+    pub fn get_storage_info(&mut self, storage_id: u32, timeout: Option<Duration>) -> Result<PtpStorageInfo, Error> {
+        let data = try!(self.command(StandardCommandCode::GetStorageInfo, &[storage_id], None, timeout));
 
         // Parse ObjectHandleArrray
         let mut cur = Cursor::new(data);
@@ -1070,8 +1082,8 @@ impl<'a> PtpCamera<'a> {
         Ok(res)
     }
 
-    pub fn get_storageids(&mut self) -> Result<Vec<u32>, Error> {
-        let data = try!(self.command(StandardCommandCode::GetStorageIDs, &[], None));
+    pub fn get_storageids(&mut self, timeout: Option<Duration>) -> Result<Vec<u32>, Error> {
+        let data = try!(self.command(StandardCommandCode::GetStorageIDs, &[], None, timeout));
 
         // Parse ObjectHandleArrray
         let mut cur = Cursor::new(data);
@@ -1083,41 +1095,42 @@ impl<'a> PtpCamera<'a> {
 
     pub fn get_numobjects_roots(&mut self,
                                 storage_id: u32,
-                                filter: Option<u32>)
+                                filter: Option<u32>,
+                                timeout: Option<Duration>)
                                 -> Result<u32, Error> {
-        self.get_numobjects(storage_id, 0xFFFFFFFF, filter)
+        self.get_numobjects(storage_id, 0xFFFFFFFF, filter, timeout)
     }
 
-    pub fn get_numobjects_all(&mut self, storage_id: u32, filter: Option<u32>) -> Result<u32, Error> {
-        self.get_numobjects(storage_id, 0x0, filter)
+    pub fn get_numobjects_all(&mut self, storage_id: u32, filter: Option<u32>, timeout: Option<Duration>) -> Result<u32, Error> {
+        self.get_numobjects(storage_id, 0x0, filter, timeout)
     }
 
-    pub fn get_device_info(&mut self) -> Result<PtpDeviceInfo, Error> {
-        let data = try!(self.command(StandardCommandCode::GetDeviceInfo, &[0, 0, 0], None));
+    pub fn get_device_info(&mut self, timeout: Option<Duration>) -> Result<PtpDeviceInfo, Error> {
+        let data = try!(self.command(StandardCommandCode::GetDeviceInfo, &[0, 0, 0], None, timeout));
 
         let device_info = try!(PtpDeviceInfo::decode(&data));
         debug!("device_info {:?}", device_info);
         Ok(device_info)
     }
 
-    pub fn open_session(&mut self) -> Result<(), Error> {
+    pub fn open_session(&mut self, timeout: Option<Duration>) -> Result<(), Error> {
         let session_id = 3;
 
         try!(self.command(StandardCommandCode::OpenSession,
                      &vec![session_id, 0, 0],
-                     None));
+                     None, timeout));
 
         Ok(())
     }
 
-    pub fn close_session(&mut self) -> Result<(), Error> {
-        try!(self.command(StandardCommandCode::CloseSession, &[], None));
-        
+    pub fn close_session(&mut self, timeout: Option<Duration>) -> Result<(), Error> {
+        try!(self.command(StandardCommandCode::CloseSession, &[], None, timeout));
+
         Ok(())
     }
-    
-    pub fn disconnect(&mut self) -> Result<(), Error> {
-        try!(self.close_session());
+
+    pub fn disconnect(&mut self, timeout: Option<Duration>) -> Result<(), Error> {
+        try!(self.close_session(timeout));
         try!(self.handle.release_interface(self.iface));
         Ok(())
     }

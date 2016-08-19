@@ -996,7 +996,8 @@ impl<'a> PtpCamera<'a> {
         payload.extend_from_slice(&buf[PTP_CONTAINER_INFO_SIZE..]);
 
         // response didn't fit into our original buf? read the rest
-        if payload.len() < cinfo.payload_len {
+        // or if our original read were satisfied exactly, so there is still a ZLP to read
+        if payload.len() < cinfo.payload_len || buf.len() == unintialized_buf.len() {
             unsafe {
                 let p = payload.as_mut_ptr().offset(payload.len() as isize);
                 let pslice = slice::from_raw_parts_mut(p, payload.capacity() - payload.len());

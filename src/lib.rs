@@ -860,8 +860,7 @@ pub struct PtpCamera<'a> {
 
 impl<'a> PtpCamera<'a> {
     pub fn new(device: &mut libusb::Device, mut handle: libusb::DeviceHandle<'a>) -> Result<PtpCamera<'a>, Error> {
-        // TODO: handle non-default configurations once https://github.com/dcuddeback/libusb-rs/pull/9 is released
-        let config_desc = try!(device.config_descriptor(0));
+        let config_desc = try!(device.active_config_descriptor());
         
         let interface_desc = try!(config_desc.interfaces()
             .flat_map(|i| i.descriptors())
@@ -1135,32 +1134,6 @@ impl<'a> PtpCamera<'a> {
         try!(self.handle.release_interface(self.iface));
         Ok(())
     }
-}
-
-pub fn open_device(context: &mut libusb::Context,
-                   vid: u16,
-                   pid: u16)
-                   -> Option<(libusb::Device, libusb::DeviceDescriptor, libusb::DeviceHandle)> {
-    let devices = match context.devices() {
-        Ok(d) => d,
-        Err(_) => return None,
-    };
-
-    for mut device in devices.iter() {
-        let device_desc = match device.device_descriptor() {
-            Ok(d) => d,
-            Err(_) => continue,
-        };
-
-        if device_desc.vendor_id() == vid && device_desc.product_id() == pid {
-            match device.open() {
-                Ok(handle) => return Some((device, device_desc, handle)),
-                Err(_) => continue,
-            }
-        }
-    }
-
-    None
 }
 
 #[derive(Debug, Clone)]

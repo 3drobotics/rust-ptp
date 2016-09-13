@@ -9,7 +9,7 @@ homepage = "https://github.com/3drobotics/rust-ptp"
 repository = "https://github.com/3drobotics/rust-ptp"
 
 [dependencies]
-libusb = "0.2.2"
+libusb = "0.3"
 byteorder = "0.5.3"
 log = "0.3"
 time = "0.1"

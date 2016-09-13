@@ -859,7 +859,7 @@ pub struct PtpCamera<'a> {
 }
 
 impl<'a> PtpCamera<'a> {
-    pub fn new(device: &mut libusb::Device, mut handle: libusb::DeviceHandle<'a>) -> Result<PtpCamera<'a>, Error> {
+    pub fn new(device: &libusb::Device<'a>) -> Result<PtpCamera<'a>, Error> {
         let config_desc = try!(device.active_config_descriptor());
         
         let interface_desc = try!(config_desc.interfaces()
@@ -868,6 +868,8 @@ impl<'a> PtpCamera<'a> {
             .ok_or(libusb::Error::NotFound));
             
         debug!("Found interface {}", interface_desc.interface_number());
+
+        let mut handle = try!(device.open());
 
         try!(handle.claim_interface(interface_desc.interface_number()));
         try!(handle.set_alternate_setting(interface_desc.interface_number(), interface_desc.setting_number()));

@@ -12,6 +12,7 @@ use std::io;
 use std::fmt;
 use std::time::Duration;
 use std::slice;
+use std::cmp::min;
 
 #[derive(Debug, PartialEq)]
 #[repr(u16)]
@@ -931,14 +932,23 @@ impl<'a> PtpCamera<'a> {
     fn write_txn_phase(&mut self, kind: PtpContainerType, code: CommandCode, tid: u32, payload: &[u8], timeout: Duration) -> Result<(), Error> {
         trace!("Write {:?} - 0x{:04x} ({}), tid:{}", kind, code, StandardCommandCode::name(code).unwrap_or("unknown"), tid);
         
-        let mut buf = Vec::with_capacity(payload.len() + PTP_CONTAINER_INFO_SIZE);
+        const CHUNK_SIZE: usize = 1024 * 1024; // 1MB, must be a multiple of the endpoint packet size
+        
+        // The first chunk contains the header, and its payload must be copied into the temporary buffer
+        let first_chunk_payload_bytes = min(payload.len(), CHUNK_SIZE - PTP_CONTAINER_INFO_SIZE);
+        let mut buf = Vec::with_capacity(first_chunk_payload_bytes + PTP_CONTAINER_INFO_SIZE);
         buf.write_u32::<LittleEndian>((payload.len() + PTP_CONTAINER_INFO_SIZE) as u32).ok();
         buf.write_u16::<LittleEndian>(kind as u16).ok();
         buf.write_u16::<LittleEndian>(code).ok();
         buf.write_u32::<LittleEndian>(tid).ok();
-        buf.extend_from_slice(payload);
-        
+        buf.extend_from_slice(&payload[..first_chunk_payload_bytes]);
         try!(self.handle.write_bulk(self.ep_out, &buf, timeout));
+        
+        // Write any subsequent chunks, straight from the source slice
+        for chunk in payload[first_chunk_payload_bytes..].chunks(CHUNK_SIZE) {
+            try!(self.handle.write_bulk(self.ep_out, chunk, timeout));
+        }
+        
         Ok(())
     }
 

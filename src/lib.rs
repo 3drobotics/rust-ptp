@@ -792,32 +792,35 @@ impl PtpPropInfo {
 
 #[derive(Debug)]
 struct PtpContainerInfo {
-    kind: PtpContainerType,
-    /// transaction ID that this container belongs to
-    tid: u32,
-    /// StandardCommandCode or ResponseCode, depending on 'kind'
-    code: u16,
     /// payload len in bytes, usually relevant for data phases
     payload_len: usize,
+    
+    /// Container kind
+    kind: PtpContainerType,
+    
+    /// StandardCommandCode or ResponseCode, depending on 'kind'
+    code: u16,
+    
+    /// transaction ID that this container belongs to
+    tid: u32,
 }
 
 const PTP_CONTAINER_INFO_SIZE: usize = 12;
 
 impl PtpContainerInfo {
     pub fn parse<R: ReadBytesExt>(mut r: R) -> Result<PtpContainerInfo, Error> {
-
         let len = try!(r.read_u32::<LittleEndian>());
-        let msgtype = try!(r.read_u16::<LittleEndian>());
-        let mtype = try!(PtpContainerType::from_u16(msgtype)
-            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", msgtype))));
+        let kind_u16 = try!(r.read_u16::<LittleEndian>());
+        let kind = try!(PtpContainerType::from_u16(kind_u16)
+            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", kind_u16))));
         let code = try!(r.read_u16::<LittleEndian>());
         let tid = try!(r.read_u32::<LittleEndian>());
 
         Ok(PtpContainerInfo {
-            kind: mtype,
+            payload_len: len as usize - PTP_CONTAINER_INFO_SIZE,
+            kind: kind,
             tid: tid,
             code: code,
-            payload_len: len as usize - PTP_CONTAINER_INFO_SIZE,
         })
     }
 

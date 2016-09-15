@@ -12,6 +12,7 @@ use std::io;
 use std::fmt;
 use std::time::Duration;
 use std::slice;
+use std::cmp::min;
 
 #[derive(Debug, PartialEq)]
 #[repr(u16)]
@@ -792,32 +793,35 @@ impl PtpPropInfo {
 
 #[derive(Debug)]
 struct PtpContainerInfo {
-    kind: PtpContainerType,
-    /// transaction ID that this container belongs to
-    tid: u32,
-    /// StandardCommandCode or ResponseCode, depending on 'kind'
-    code: u16,
     /// payload len in bytes, usually relevant for data phases
     payload_len: usize,
+    
+    /// Container kind
+    kind: PtpContainerType,
+    
+    /// StandardCommandCode or ResponseCode, depending on 'kind'
+    code: u16,
+    
+    /// transaction ID that this container belongs to
+    tid: u32,
 }
 
 const PTP_CONTAINER_INFO_SIZE: usize = 12;
 
 impl PtpContainerInfo {
     pub fn parse<R: ReadBytesExt>(mut r: R) -> Result<PtpContainerInfo, Error> {
-
         let len = try!(r.read_u32::<LittleEndian>());
-        let msgtype = try!(r.read_u16::<LittleEndian>());
-        let mtype = try!(PtpContainerType::from_u16(msgtype)
-            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", msgtype))));
+        let kind_u16 = try!(r.read_u16::<LittleEndian>());
+        let kind = try!(PtpContainerType::from_u16(kind_u16)
+            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", kind_u16))));
         let code = try!(r.read_u16::<LittleEndian>());
         let tid = try!(r.read_u32::<LittleEndian>());
 
         Ok(PtpContainerInfo {
-            kind: mtype,
+            payload_len: len as usize - PTP_CONTAINER_INFO_SIZE,
+            kind: kind,
             tid: tid,
             code: code,
-            payload_len: len as usize - PTP_CONTAINER_INFO_SIZE,
         })
     }
 
@@ -825,28 +829,6 @@ impl PtpContainerInfo {
     pub fn belongs_to(&self, tid: u32) -> bool {
         self.tid == tid
     }
-}
-
-fn ptp_gen_message(w: &mut Write,
-                   kind: PtpContainerType,
-                   code: CommandCode,
-                   tid: u32,
-                   payload: &[u8]) {
-    let len: u32 = 12 + payload.len() as u32;
-
-    w.write_u32::<LittleEndian>(len).ok();
-    w.write_u16::<LittleEndian>(kind as u16).ok();
-    w.write_u16::<LittleEndian>(code).ok();
-    w.write_u32::<LittleEndian>(tid).ok();
-    w.write_all(payload).ok();
-}
-
-fn ptp_gen_cmd_message(w: &mut Write, code: CommandCode, tid: u32, params: &[u32]) {
-    let mut payload = vec![];
-    for p in params {
-        payload.write_u32::<LittleEndian>(*p).ok();
-    }
-    ptp_gen_message(w, PtpContainerType::Command, code, tid, &payload);
 }
 
 pub struct PtpCamera<'a> {
@@ -908,48 +890,24 @@ impl<'a> PtpCamera<'a> {
 
         // timeout of 0 means unlimited timeout.
         let timeout = timeout.unwrap_or(Duration::new(0, 0));
-
-        // Send messages.
-        let mut cmd_message = vec![];
-        ptp_gen_cmd_message(&mut cmd_message, code, self.current_tid, params);
-
-        let timespec = time::get_time();
-        trace!("Write Cmnd [{}:{:09}] - 0x{:04x} ({}), tid:{}, params:{:?}",
-               timespec.sec,
-               timespec.nsec,
-               code,
-               StandardCommandCode::name(code).unwrap_or("unknown"),
-               self.current_tid,
-               params);
         
-        try!(self.handle.write_bulk(self.ep_out, &cmd_message, timeout));
+        let tid = self.current_tid;
+        self.current_tid += 1;
+
+        // Prepare payload of the request phase, containing the parameters
+        let mut request_payload = Vec::with_capacity(params.len() * 4);
+        for p in params {
+            request_payload.write_u32::<LittleEndian>(*p).ok();
+        }
+        
+        try!(self.write_txn_phase(PtpContainerType::Command, code, tid, &request_payload, timeout));
 
         if let Some(data) = data {
-            let mut data_message = vec![];
-            ptp_gen_message(&mut data_message,
-                            PtpContainerType::Data,
-                            code,
-                            self.current_tid,
-                            data);
-            let timespec = time::get_time();
-            trace!("Write Data [{}:{:09}] - 0x{:04x} ({}), tid:{}, len:{}",
-                   timespec.sec,
-                   timespec.nsec,
-                   code,
-                   StandardCommandCode::name(code).unwrap_or("unknown"),
-                   self.current_tid,
-                   data.len());
-            try!(self.handle.write_bulk(self.ep_out, &data_message, timeout));
+            try!(self.write_txn_phase(PtpContainerType::Data, code, tid, data, timeout));
         }
-
-        let tid = self.current_tid; // transaction id we're waiting for a response to
-        self.current_tid += 1;
 
         // request phase is followed by data phase (optional) and response phase.
         // read both, check the status on the response, and return the data payload, if any.
-        //
-        // NB: responses with mismatching transaction IDs are discarded - does this represent
-        //      an error, or should we do anything more helpful in this case?
         let mut data_phase_payload = vec![];
         loop {
             let (container, payload) = try!(self.read_txn_phase(timeout));
@@ -969,6 +927,29 @@ impl<'a> PtpCamera<'a> {
                 _ => {}
             }
         }
+    }
+    
+    fn write_txn_phase(&mut self, kind: PtpContainerType, code: CommandCode, tid: u32, payload: &[u8], timeout: Duration) -> Result<(), Error> {
+        trace!("Write {:?} - 0x{:04x} ({}), tid:{}", kind, code, StandardCommandCode::name(code).unwrap_or("unknown"), tid);
+        
+        const CHUNK_SIZE: usize = 1024 * 1024; // 1MB, must be a multiple of the endpoint packet size
+        
+        // The first chunk contains the header, and its payload must be copied into the temporary buffer
+        let first_chunk_payload_bytes = min(payload.len(), CHUNK_SIZE - PTP_CONTAINER_INFO_SIZE);
+        let mut buf = Vec::with_capacity(first_chunk_payload_bytes + PTP_CONTAINER_INFO_SIZE);
+        buf.write_u32::<LittleEndian>((payload.len() + PTP_CONTAINER_INFO_SIZE) as u32).ok();
+        buf.write_u16::<LittleEndian>(kind as u16).ok();
+        buf.write_u16::<LittleEndian>(code).ok();
+        buf.write_u32::<LittleEndian>(tid).ok();
+        buf.extend_from_slice(&payload[..first_chunk_payload_bytes]);
+        try!(self.handle.write_bulk(self.ep_out, &buf, timeout));
+        
+        // Write any subsequent chunks, straight from the source slice
+        for chunk in payload[first_chunk_payload_bytes..].chunks(CHUNK_SIZE) {
+            try!(self.handle.write_bulk(self.ep_out, chunk, timeout));
+        }
+        
+        Ok(())
     }
 
     // helper for command() above, retrieve container info and payload for the current phase

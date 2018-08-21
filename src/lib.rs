@@ -1002,6 +1002,10 @@ impl<'a> PtpCamera<'a> {
         self.command(StandardCommandCode::GetObject, &[handle], None, timeout)
     }
 
+    pub fn get_partialobject(&mut self, handle: u32, offset: u32, max: u32, timeout: Option<Duration>) -> Result<Vec<u8>, Error> {
+        self.command(StandardCommandCode::GetPartialObject, &[handle, offset, max], None, timeout)
+    }
+
     pub fn get_objecthandles(&mut self,
                              storage_id: u32,
                              handle_id: u32,

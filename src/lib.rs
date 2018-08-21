@@ -1006,6 +1006,10 @@ impl<'a> PtpCamera<'a> {
         self.command(StandardCommandCode::GetPartialObject, &[handle, offset, max], None, timeout)
     }
 
+    pub fn delete_object(&mut self, handle: u32, timeout: Option<Duration>) -> Result<(), Error> {
+        self.command(StandardCommandCode::DeleteObject, &[handle], None, timeout).map(|_| ())
+    }
+
     pub fn get_objecthandles(&mut self,
                              storage_id: u32,
                              handle_id: u32,

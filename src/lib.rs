@@ -1010,6 +1010,10 @@ impl<'a> PtpCamera<'a> {
         self.command(StandardCommandCode::DeleteObject, &[handle], None, timeout).map(|_| ())
     }
 
+    pub fn power_down(&mut self, timeout: Option<Duration>) -> Result<(), Error> {
+        self.command(StandardCommandCode::PowerDown, &[], None, timeout).map(|_| ())
+    }
+
     pub fn get_objecthandles(&mut self,
                              storage_id: u32,
                              handle_id: u32,

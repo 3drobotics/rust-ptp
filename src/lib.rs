@@ -755,30 +755,30 @@ impl PtpPropInfo {
         Ok(PtpPropInfo {
             PropertyCode: cur.read_u16::<LittleEndian>()?,
             DataType: {
-                data_type = try!(cur.read_u16::<LittleEndian>());
+                data_type = cur.read_u16::<LittleEndian>()?;
                 data_type
             },
-            GetSet: try!(cur.read_u8()),
-            IsEnable: try!(cur.read_u8()),
-            FactoryDefault: try!(PtpDataType::read_type(data_type, cur)),
-            Current: try!(PtpDataType::read_type(data_type, cur)),
+            GetSet: cur.read_u8()?,
+            IsEnable: cur.read_u8()?,
+            FactoryDefault: PtpDataType::read_type(data_type, cur)?,
+            Current: PtpDataType::read_type(data_type, cur)?,
             Form: {
-                match try!(cur.read_u8()) {
+                match cur.read_u8()? {
                     // 0x00 => PtpFormData::None,
                     0x01 => {
                         PtpFormData::Range {
-                            minValue: try!(PtpDataType::read_type(data_type, cur)),
-                            maxValue: try!(PtpDataType::read_type(data_type, cur)),
-                            step: try!(PtpDataType::read_type(data_type, cur)),
+                            minValue: PtpDataType::read_type(data_type, cur)?,
+                            maxValue: PtpDataType::read_type(data_type, cur)?,
+                            step: PtpDataType::read_type(data_type, cur)?,
                         }
                     }
                     0x02 => {
                         PtpFormData::Enumeration {
                             array: {
-                                let len = try!(cur.read_u16::<LittleEndian>()) as usize;
+                                let len = cur.read_u16::<LittleEndian>()? as usize;
                                 let mut arr = Vec::with_capacity(len);
                                 for _ in 0..len {
-                                    arr.push(try!(PtpDataType::read_type(data_type, cur)));
+                                    arr.push(PtpDataType::read_type(data_type, cur)?);
                                 }
                                 arr
                             },
@@ -810,12 +810,12 @@ const PTP_CONTAINER_INFO_SIZE: usize = 12;
 
 impl PtpContainerInfo {
     pub fn parse<R: ReadBytesExt>(mut r: R) -> Result<PtpContainerInfo, Error> {
-        let len = try!(r.read_u32::<LittleEndian>());
-        let kind_u16 = try!(r.read_u16::<LittleEndian>());
-        let kind = try!(PtpContainerType::from_u16(kind_u16)
-            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", kind_u16))));
-        let code = try!(r.read_u16::<LittleEndian>());
-        let tid = try!(r.read_u32::<LittleEndian>());
+        let len = r.read_u32::<LittleEndian>()?;
+        let kind_u16 = r.read_u16::<LittleEndian>()?;
+        let kind = PtpContainerType::from_u16(kind_u16)
+            .ok_or_else(|| Error::Malformed(format!("Invalid message type {:x}.", kind_u16)))?;
+        let code = r.read_u16::<LittleEndian>()?;
+        let tid = r.read_u32::<LittleEndian>()?;
 
         Ok(PtpContainerInfo {
             payload_len: len as usize - PTP_CONTAINER_INFO_SIZE,
@@ -842,19 +842,19 @@ pub struct PtpCamera<'a> {
 
 impl<'a> PtpCamera<'a> {
     pub fn new(device: &libusb::Device<'a>) -> Result<PtpCamera<'a>, Error> {
-        let config_desc = try!(device.active_config_descriptor());
+        let config_desc = device.active_config_descriptor()?;
 
-        let interface_desc = try!(config_desc.interfaces()
+        let interface_desc = config_desc.interfaces()
             .flat_map(|i| i.descriptors())
             .find(|x| x.class_code() == 6)
-            .ok_or(libusb::Error::NotFound));
+            .ok_or(libusb::Error::NotFound)?;
 
         debug!("Found interface {}", interface_desc.interface_number());
 
-        let mut handle = try!(device.open());
+        let mut handle = device.open()?;
 
-        try!(handle.claim_interface(interface_desc.interface_number()));
-        try!(handle.set_alternate_setting(interface_desc.interface_number(), interface_desc.setting_number()));
+        handle.claim_interface(interface_desc.interface_number())?;
+        handle.set_alternate_setting(interface_desc.interface_number(), interface_desc.setting_number())?;
 
         let find_endpoint = |direction, transfer_type| {
             interface_desc.endpoint_descriptors()
@@ -865,9 +865,9 @@ impl<'a> PtpCamera<'a> {
 
         Ok(PtpCamera {
             iface: interface_desc.interface_number(),
-            ep_in:  try!(find_endpoint(libusb::Direction::In, libusb::TransferType::Bulk)),
-            ep_out: try!(find_endpoint(libusb::Direction::Out, libusb::TransferType::Bulk)),
-            _ep_int: try!(find_endpoint(libusb::Direction::In, libusb::TransferType::Interrupt)),
+            ep_in:  find_endpoint(libusb::Direction::In, libusb::TransferType::Bulk)?,
+            ep_out: find_endpoint(libusb::Direction::Out, libusb::TransferType::Bulk)?,
+            _ep_int: find_endpoint(libusb::Direction::In, libusb::TransferType::Interrupt)?,
             current_tid: 0,
             handle: handle,
         })
@@ -900,17 +900,17 @@ impl<'a> PtpCamera<'a> {
             request_payload.write_u32::<LittleEndian>(*p).ok();
         }
 
-        try!(self.write_txn_phase(PtpContainerType::Command, code, tid, &request_payload, timeout));
+        self.write_txn_phase(PtpContainerType::Command, code, tid, &request_payload, timeout)?;
 
         if let Some(data) = data {
-            try!(self.write_txn_phase(PtpContainerType::Data, code, tid, data, timeout));
+            self.write_txn_phase(PtpContainerType::Data, code, tid, data, timeout)?;
         }
 
         // request phase is followed by data phase (optional) and response phase.
         // read both, check the status on the response, and return the data payload, if any.
         let mut data_phase_payload = vec![];
         loop {
-            let (container, payload) = try!(self.read_txn_phase(timeout));
+            let (container, payload) = self.read_txn_phase(timeout)?;
             if !container.belongs_to(tid) {
                 return Err(Error::Malformed(format!("mismatched txnid {}, expecting {}", container.tid, tid)));
             }
@@ -942,11 +942,11 @@ impl<'a> PtpCamera<'a> {
         buf.write_u16::<LittleEndian>(code).ok();
         buf.write_u32::<LittleEndian>(tid).ok();
         buf.extend_from_slice(&payload[..first_chunk_payload_bytes]);
-        try!(self.handle.write_bulk(self.ep_out, &buf, timeout));
+        self.handle.write_bulk(self.ep_out, &buf, timeout)?;
 
         // Write any subsequent chunks, straight from the source slice
         for chunk in payload[first_chunk_payload_bytes..].chunks(CHUNK_SIZE) {
-            try!(self.handle.write_bulk(self.ep_out, chunk, timeout));
+            self.handle.write_bulk(self.ep_out, chunk, timeout)?;
         }
 
         Ok(())

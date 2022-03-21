@@ -216,16 +216,7 @@ impl fmt::Display for Error {
 }
 
 impl ::std::error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Response(r) => StandardResponseCode::name(r).unwrap_or("<vendor-defined code>"),
-            Error::Malformed(ref m) => m,
-            Error::Usb(ref e) => e.description(),
-            Error::Io(ref e) => e.description(),
-        }
-    }
-
-    fn cause(&self) -> Option<&::std::error::Error> {
+    fn cause(&self) -> Option<& dyn ::std::error::Error> {
         match *self {
             Error::Usb(ref e) => Some(e),
             Error::Io(ref e) => Some(e),

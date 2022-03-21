@@ -346,7 +346,7 @@ pub trait PtpRead: ReadBytesExt {
         let len = self.read_u8()?;
         if len > 0 {
             // len includes the trailing null u16
-            let data: Vec<u16> = try!((0..(len - 1)).map(|_| self.read_u16::<LittleEndian>()).collect());
+            let data: Vec<u16> = (0..(len - 1)).map(|_| self.read_u16::<LittleEndian>()).collect::<Result<_, std::io::Error>>()?;
             self.read_u16::<LittleEndian>()?;
             String::from_utf16(&data).map_err(|_| Error::Malformed(format!("Invalid UTF16 data: {:?}", data)))
         } else {

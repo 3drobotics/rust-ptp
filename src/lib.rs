@@ -41,7 +41,7 @@ pub type ResponseCode = u16;
 #[allow(non_upper_case_globals)]
 pub mod StandardResponseCode {
     use super::ResponseCode;
-    
+
     pub const Undefined: ResponseCode = 0x2000;
     pub const Ok: ResponseCode = 0x2001;
     pub const GeneralError: ResponseCode = 0x2002;
@@ -75,7 +75,7 @@ pub mod StandardResponseCode {
     pub const SessionAlreadyOpen: ResponseCode = 0x201E;
     pub const TransactionCancelled: ResponseCode = 0x201F;
     pub const SpecificationOfDestinationUnsupported: ResponseCode = 0x2020;
-    
+
     pub fn name(v: ResponseCode) -> Option<&'static str> {
         match v {
             Undefined => Some("Undefined"),
@@ -121,7 +121,7 @@ pub type CommandCode = u16;
 #[allow(non_upper_case_globals)]
 pub mod StandardCommandCode {
     use super::CommandCode;
-    
+
     pub const Undefined: CommandCode = 0x1000;
     pub const GetDeviceInfo: CommandCode = 0x1001;
     pub const OpenSession: CommandCode = 0x1002;
@@ -151,7 +151,7 @@ pub mod StandardCommandCode {
     pub const CopyObject: CommandCode = 0x101A;
     pub const GetPartialObject: CommandCode = 0x101B;
     pub const InitiateOpenCapture: CommandCode = 0x101C;
-    
+
     pub fn name(v: CommandCode) -> Option<&'static str> {
         match v {
             Undefined => Some("Undefined"),
@@ -193,13 +193,13 @@ pub mod StandardCommandCode {
 pub enum Error {
     /// PTP Responder returned a status code other than Ok, either a constant in StandardResponseCode or a vendor-defined code
     Response(u16),
-    
+
     /// Data received was malformed
     Malformed(String),
-    
+
     /// Another libusb error
     Usb(libusb::Error),
-    
+
     /// Another IO error
     Io(io::Error),
 }
@@ -353,7 +353,7 @@ pub trait PtpRead: ReadBytesExt {
             Ok("".into())
         }
     }
-    
+
     fn expect_end(&mut self) -> Result<(), Error>;
 }
 
@@ -795,13 +795,13 @@ impl PtpPropInfo {
 struct PtpContainerInfo {
     /// payload len in bytes, usually relevant for data phases
     payload_len: usize,
-    
+
     /// Container kind
     kind: PtpContainerType,
-    
+
     /// StandardCommandCode or ResponseCode, depending on 'kind'
     code: u16,
-    
+
     /// transaction ID that this container belongs to
     tid: u32,
 }
@@ -843,19 +843,19 @@ pub struct PtpCamera<'a> {
 impl<'a> PtpCamera<'a> {
     pub fn new(device: &libusb::Device<'a>) -> Result<PtpCamera<'a>, Error> {
         let config_desc = try!(device.active_config_descriptor());
-        
+
         let interface_desc = try!(config_desc.interfaces()
             .flat_map(|i| i.descriptors())
             .find(|x| x.class_code() == 6)
             .ok_or(libusb::Error::NotFound));
-            
+
         debug!("Found interface {}", interface_desc.interface_number());
 
         let mut handle = try!(device.open());
 
         try!(handle.claim_interface(interface_desc.interface_number()));
         try!(handle.set_alternate_setting(interface_desc.interface_number(), interface_desc.setting_number()));
-        
+
         let find_endpoint = |direction, transfer_type| {
             interface_desc.endpoint_descriptors()
                 .find(|ep| ep.direction() == direction && ep.transfer_type() == transfer_type)
@@ -890,7 +890,7 @@ impl<'a> PtpCamera<'a> {
 
         // timeout of 0 means unlimited timeout.
         let timeout = timeout.unwrap_or(Duration::new(0, 0));
-        
+
         let tid = self.current_tid;
         self.current_tid += 1;
 
@@ -899,7 +899,7 @@ impl<'a> PtpCamera<'a> {
         for p in params {
             request_payload.write_u32::<LittleEndian>(*p).ok();
         }
-        
+
         try!(self.write_txn_phase(PtpContainerType::Command, code, tid, &request_payload, timeout));
 
         if let Some(data) = data {
@@ -928,12 +928,12 @@ impl<'a> PtpCamera<'a> {
             }
         }
     }
-    
+
     fn write_txn_phase(&mut self, kind: PtpContainerType, code: CommandCode, tid: u32, payload: &[u8], timeout: Duration) -> Result<(), Error> {
         trace!("Write {:?} - 0x{:04x} ({}), tid:{}", kind, code, StandardCommandCode::name(code).unwrap_or("unknown"), tid);
-        
+
         const CHUNK_SIZE: usize = 1024 * 1024; // 1MB, must be a multiple of the endpoint packet size
-        
+
         // The first chunk contains the header, and its payload must be copied into the temporary buffer
         let first_chunk_payload_bytes = min(payload.len(), CHUNK_SIZE - PTP_CONTAINER_INFO_SIZE);
         let mut buf = Vec::with_capacity(first_chunk_payload_bytes + PTP_CONTAINER_INFO_SIZE);
@@ -943,12 +943,12 @@ impl<'a> PtpCamera<'a> {
         buf.write_u32::<LittleEndian>(tid).ok();
         buf.extend_from_slice(&payload[..first_chunk_payload_bytes]);
         try!(self.handle.write_bulk(self.ep_out, &buf, timeout));
-        
+
         // Write any subsequent chunks, straight from the source slice
         for chunk in payload[first_chunk_payload_bytes..].chunks(CHUNK_SIZE) {
             try!(self.handle.write_bulk(self.ep_out, chunk, timeout));
         }
-        
+
         Ok(())
     }
 
@@ -1002,6 +1002,14 @@ impl<'a> PtpCamera<'a> {
         self.command(StandardCommandCode::GetObject, &[handle], None, timeout)
     }
 
+    pub fn get_partialobject(&mut self, handle: u32, offset: u32, max: u32, timeout: Option<Duration>) -> Result<Vec<u8>, Error> {
+        self.command(StandardCommandCode::GetPartialObject, &[handle, offset, max], None, timeout)
+    }
+
+    pub fn delete_object(&mut self, handle: u32, timeout: Option<Duration>) -> Result<(), Error> {
+        self.command(StandardCommandCode::DeleteObject, &[handle], None, timeout).map(|_| ())
+    }
+
     pub fn get_objecthandles(&mut self,
                              storage_id: u32,
                              handle_id: u32,
@@ -1015,7 +1023,7 @@ impl<'a> PtpCamera<'a> {
         let mut cur = Cursor::new(data);
         let value = try!(cur.read_ptp_u32_vec());
         try!(cur.expect_end());
-        
+
         Ok(value)
     }
 

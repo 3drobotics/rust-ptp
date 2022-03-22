@@ -1,7 +1,7 @@
 [package]
 name = "ptp"
-version = "0.5.0"
-authors = ["Tim Ryan"]
+version = "0.6.0"
+authors = ["Tim Ryan", "Richo Healey"]
 description = "Picture Transfer Protocol driver"
 keywords = ["camera", "usb"]
 license = "MIT/Apache-2.0"
